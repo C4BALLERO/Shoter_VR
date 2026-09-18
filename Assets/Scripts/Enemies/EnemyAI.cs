@@ -16,9 +16,17 @@ namespace Medallas.Enemies
         public Transform target;
         public int scoreValueOverride = -1;
 
+        [Header("Ataque a distancia (cuando no puede acercarse, ej. detras de una barrera)")]
+        public GameObject projectilePrefab;
+        public Transform throwPoint;
+        public float throwCooldown = 2.5f;
+        public float throwSpeed = 6f;
+        public float throwArcBoost = 3f;
+
         NavMeshAgent agent;
         Health health;
         float nextAttackTime;
+        float nextThrowTime;
 
         public System.Action<int> OnEnemyDefeated;
 
@@ -61,11 +69,23 @@ namespace Medallas.Enemies
                     agent.isStopped = true;
                     TryAttack();
                 }
+
+                // Si no logra acercarse lo suficiente (ej. bloqueado por una
+                // barrera que el NavMesh no puede cruzar), ataca a distancia.
+                if (distance > data.attackRange && AgentIsBlocked())
+                {
+                    TryThrow();
+                }
             }
             else
             {
                 agent.isStopped = true;
             }
+        }
+
+        bool AgentIsBlocked()
+        {
+            return !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance + 0.1f;
         }
 
         void TryAttack()
@@ -75,6 +95,21 @@ namespace Medallas.Enemies
 
             var playerHealth = target.GetComponentInParent<IDamageable>();
             playerHealth?.TakeDamage(data.attackDamage);
+        }
+
+        void TryThrow()
+        {
+            if (Time.time < nextThrowTime || projectilePrefab == null || target == null) return;
+            nextThrowTime = Time.time + throwCooldown;
+
+            Vector3 origin = throwPoint != null ? throwPoint.position : transform.position + Vector3.up;
+            var projectile = Instantiate(projectilePrefab, origin, Quaternion.identity);
+
+            var rb = projectile.GetComponent<Rigidbody>();
+            if (rb == null) return;
+
+            Vector3 toTarget = target.position - origin;
+            rb.linearVelocity = toTarget.normalized * throwSpeed + Vector3.up * throwArcBoost;
         }
 
         void HandleDeath()
