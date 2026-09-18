@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ed6948f06004c744c8063818973db419, type: 3}
-  m_Name: Weapon_PistolaEstandar
+  m_Name: Weapon_Escopeta
   m_EditorClassIdentifier: Assembly-CSharp::Medallas.Data.WeaponData
-  weaponName: Pistola Estandar
-  damage: 15
-  magazineSize: 12
-  fireRate: 0.3
-  range: 40
+  weaponName: Escopeta
+  damage: 8
+  magazineSize: 6
+  fireRate: 0.8
+  range: 15
   automatic: 0
-  pelletCount: 1
-  spreadAngle: 0
+  pelletCount: 6
+  spreadAngle: 6
   fireSound: {fileID: 0}
   emptySound: {fileID: 0}
   muzzleFlashPrefab: {fileID: 0}

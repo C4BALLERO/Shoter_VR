@@ -19,6 +19,7 @@ namespace Medallas.Weapon
         XRGrabInteractable grabInteractable;
         AudioSource audioSource;
         float nextFireTime;
+        bool triggerHeld;
 
         void Awake()
         {
@@ -30,16 +31,30 @@ namespace Medallas.Weapon
         void OnEnable()
         {
             grabInteractable.activated.AddListener(OnActivated);
+            grabInteractable.deactivated.AddListener(OnDeactivated);
         }
 
         void OnDisable()
         {
             grabInteractable.activated.RemoveListener(OnActivated);
+            grabInteractable.deactivated.RemoveListener(OnDeactivated);
+        }
+
+        void Update()
+        {
+            if (weaponData != null && weaponData.automatic && triggerHeld)
+                TryFire();
         }
 
         void OnActivated(ActivateEventArgs args)
         {
+            triggerHeld = true;
             TryFire();
+        }
+
+        void OnDeactivated(DeactivateEventArgs args)
+        {
+            triggerHeld = false;
         }
 
         public void TryFire()
@@ -62,15 +77,30 @@ namespace Medallas.Weapon
             SpawnMuzzleFlash();
 
             Vector3 origin = muzzlePoint != null ? muzzlePoint.position : transform.position;
-            Vector3 direction = muzzlePoint != null ? muzzlePoint.forward : transform.forward;
+            Vector3 baseDirection = muzzlePoint != null ? muzzlePoint.forward : transform.forward;
 
-            if (Physics.Raycast(origin, direction, out RaycastHit hit, weaponData.range, hittableLayers))
+            int pellets = Mathf.Max(1, weaponData.pelletCount);
+            for (int i = 0; i < pellets; i++)
             {
-                DamageSystem.ApplyDamage(hit.collider.gameObject, weaponData.damage);
+                Vector3 direction = ApplySpread(baseDirection, weaponData.spreadAngle);
 
-                if (weaponData.impactEffectPrefab != null)
-                    Object.Instantiate(weaponData.impactEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
+                if (Physics.Raycast(origin, direction, out RaycastHit hit, weaponData.range, hittableLayers))
+                {
+                    DamageSystem.ApplyDamage(hit.collider.gameObject, weaponData.damage);
+
+                    if (weaponData.impactEffectPrefab != null)
+                        Object.Instantiate(weaponData.impactEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
+                }
             }
+        }
+
+        static Vector3 ApplySpread(Vector3 direction, float spreadAngle)
+        {
+            if (spreadAngle <= 0f) return direction;
+
+            Vector2 randomCircle = UnityEngine.Random.insideUnitCircle * spreadAngle;
+            Quaternion spreadRotation = Quaternion.Euler(randomCircle.y, randomCircle.x, 0f);
+            return spreadRotation * direction;
         }
 
         void SpawnMuzzleFlash()
