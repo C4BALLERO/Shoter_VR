@@ -12,6 +12,9 @@ namespace Medallas.Data
         public int magazineSize = 10;
         public float fireRate = 0.25f;
         public float range = 50f;
+        public bool automatic = false;
+        public int pelletCount = 1;
+        public float spreadAngle = 0f;
         public AudioClip fireSound;
         public AudioClip emptySound;
         public GameObject muzzleFlashPrefab;
