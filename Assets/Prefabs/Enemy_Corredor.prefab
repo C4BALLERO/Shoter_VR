@@ -119,8 +119,8 @@ MonoBehaviour:
   projectilePrefab: {fileID: 357918224098090723, guid: 9dcbb8bab4b65e246aabdba487820d44, type: 3}
   throwPoint: {fileID: 5175622891747011700}
   throwCooldown: 2.5
-  throwSpeed: 6
-  throwArcBoost: 3
+  throwSpeed: 11
+  throwArcBoost: 6
   animator: {fileID: 2201484545987316588}
   turnSpeed: 6
 --- !u!1 &6961265737794160956
