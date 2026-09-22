@@ -25,7 +25,7 @@ namespace Medallas.Core
         {
             if (IsDead) return;
 
-            currentHealth -= amount;
+            currentHealth = Mathf.Max(0, currentHealth - amount);
             OnDamaged?.Invoke(currentHealth);
 
             if (currentHealth <= 0)
