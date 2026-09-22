@@ -20,6 +20,8 @@ namespace Medallas.UI
         public Text messageText;
         public AmmoSystem ammoSystem;
         public RewardMachineController rewardMachine;
+        public Health playerHealth;
+        public Image healthBarFill;
         public float messageDuration = 3f;
 
         Coroutine messageRoutine;
@@ -48,6 +50,12 @@ namespace Medallas.UI
             Medallas.Weapon.WeaponController.WeaponUnequipped += HandleWeaponUnequipped;
             if (weaponText != null) weaponText.text = "ARMA: NINGUNA";
 
+            if (playerHealth != null)
+            {
+                playerHealth.OnDamaged.AddListener(HandleHealthChanged);
+                HandleHealthChanged(playerHealth.CurrentHealth);
+            }
+
             if (rewardMachine != null)
             {
                 rewardMachine.onNotEnoughMedals.AddListener(HandleNotEnoughMedals);
@@ -71,6 +79,9 @@ namespace Medallas.UI
 
             Medallas.Weapon.WeaponController.WeaponEquipped -= HandleWeaponEquipped;
             Medallas.Weapon.WeaponController.WeaponUnequipped -= HandleWeaponUnequipped;
+
+            if (playerHealth != null)
+                playerHealth.OnDamaged.RemoveListener(HandleHealthChanged);
 
             if (rewardMachine != null)
             {
@@ -107,6 +118,15 @@ namespace Medallas.UI
         void HandleWeaponUnequipped(WeaponData data)
         {
             if (weaponText != null) weaponText.text = "ARMA: NINGUNA";
+        }
+
+        void HandleHealthChanged(int current)
+        {
+            if (healthBarFill == null || playerHealth == null) return;
+            healthBarFill.fillAmount = playerHealth.maxHealth > 0 ? Mathf.Clamp01((float)current / playerHealth.maxHealth) : 0f;
+
+            if (current <= 0)
+                ShowMessage("HAS CAIDO");
         }
 
         void HandleNotEnoughMedals()

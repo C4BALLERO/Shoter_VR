@@ -13,10 +13,17 @@ namespace Medallas.Weapon
         public XRGrabInteractable weapon;
         public bool rightHand = true;
 
-        IEnumerator Start()
+        // Se llama desde StartMenuController al presionar el boton de inicio,
+        // no automaticamente al cargar la escena: el jugador no debe tener el
+        // arma en mano mientras todavia esta mirando el menu.
+        public void Equip()
+        {
+            StartCoroutine(EquipRoutine());
+        }
+
+        IEnumerator EquipRoutine()
         {
             yield return null;
-            yield return new WaitForSeconds(0.3f);
 
             if (weapon == null) yield break;
 

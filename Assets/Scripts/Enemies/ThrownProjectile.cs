@@ -22,5 +22,13 @@ namespace Medallas.Enemies
             DamageSystem.ApplyDamage(collision.gameObject, damage);
             Destroy(gameObject);
         }
+
+        // El jugador usa un collider trigger (para no empujar fisicamente
+        // armas/medallas al caminar), asi que tambien hay que escuchar esto.
+        void OnTriggerEnter(Collider other)
+        {
+            DamageSystem.ApplyDamage(other.gameObject, damage);
+            Destroy(gameObject);
+        }
     }
 }
