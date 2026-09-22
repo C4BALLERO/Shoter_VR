@@ -14,6 +14,7 @@ namespace Medallas.Core
         int currentHealth;
 
         public bool IsDead { get; private set; }
+        public int CurrentHealth => currentHealth;
 
         void Awake()
         {
