@@ -23,6 +23,12 @@ namespace Medallas.Enemies
         public float throwSpeed = 6f;
         public float throwArcBoost = 3f;
 
+        [Header("Animacion")]
+        public Animator animator;
+        public float turnSpeed = 6f;
+        static readonly int MovingParam = Animator.StringToHash("Moving");
+        static readonly int AttackParam = Animator.StringToHash("Attack");
+
         NavMeshAgent agent;
         Health health;
         float nextAttackTime;
@@ -34,6 +40,7 @@ namespace Medallas.Enemies
         {
             agent = GetComponent<NavMeshAgent>();
             health = GetComponent<Health>();
+            if (animator == null) animator = GetComponentInChildren<Animator>();
         }
 
         void Start()
@@ -67,6 +74,7 @@ namespace Medallas.Enemies
                 else
                 {
                     agent.isStopped = true;
+                    FaceTarget();
                     TryAttack();
                 }
 
@@ -74,6 +82,7 @@ namespace Medallas.Enemies
                 // barrera que el NavMesh no puede cruzar), ataca a distancia.
                 if (distance > data.attackRange && AgentIsBlocked())
                 {
+                    FaceTarget();
                     TryThrow();
                 }
             }
@@ -81,6 +90,25 @@ namespace Medallas.Enemies
             {
                 agent.isStopped = true;
             }
+
+            UpdateAnimator();
+        }
+
+        void UpdateAnimator()
+        {
+            if (animator == null) return;
+            bool moving = !agent.isStopped && agent.velocity.sqrMagnitude > 0.05f;
+            animator.SetBool(MovingParam, moving);
+        }
+
+        void FaceTarget()
+        {
+            Vector3 direction = target.position - transform.position;
+            direction.y = 0f;
+            if (direction.sqrMagnitude < 0.001f) return;
+
+            Quaternion lookRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * turnSpeed);
         }
 
         bool AgentIsBlocked()
@@ -93,6 +121,8 @@ namespace Medallas.Enemies
             if (Time.time < nextAttackTime) return;
             nextAttackTime = Time.time + 1f;
 
+            animator?.SetTrigger(AttackParam);
+
             var playerHealth = target.GetComponentInParent<IDamageable>();
             playerHealth?.TakeDamage(data.attackDamage);
         }
@@ -101,6 +131,8 @@ namespace Medallas.Enemies
         {
             if (Time.time < nextThrowTime || projectilePrefab == null || target == null) return;
             nextThrowTime = Time.time + throwCooldown;
+
+            animator?.SetTrigger(AttackParam);
 
             Vector3 origin = throwPoint != null ? throwPoint.position : transform.position + Vector3.up;
             var projectile = Instantiate(projectilePrefab, origin, Quaternion.identity);

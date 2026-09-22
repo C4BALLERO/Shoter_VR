@@ -21,6 +21,11 @@ namespace Medallas.Weapon
         float nextFireTime;
         bool triggerHeld;
 
+        // Para el HUD: cualquier arma avisa cuando la agarran/sueltan, sin
+        // necesidad de que el HUD conozca cada arma de la escena.
+        public static event System.Action<WeaponData> WeaponEquipped;
+        public static event System.Action<WeaponData> WeaponUnequipped;
+
         void Awake()
         {
             grabInteractable = GetComponent<XRGrabInteractable>();
@@ -32,12 +37,26 @@ namespace Medallas.Weapon
         {
             grabInteractable.activated.AddListener(OnActivated);
             grabInteractable.deactivated.AddListener(OnDeactivated);
+            grabInteractable.selectEntered.AddListener(OnGrabbed);
+            grabInteractable.selectExited.AddListener(OnReleased);
         }
 
         void OnDisable()
         {
             grabInteractable.activated.RemoveListener(OnActivated);
             grabInteractable.deactivated.RemoveListener(OnDeactivated);
+            grabInteractable.selectEntered.RemoveListener(OnGrabbed);
+            grabInteractable.selectExited.RemoveListener(OnReleased);
+        }
+
+        void OnGrabbed(SelectEnterEventArgs args)
+        {
+            WeaponEquipped?.Invoke(weaponData);
+        }
+
+        void OnReleased(SelectExitEventArgs args)
+        {
+            WeaponUnequipped?.Invoke(weaponData);
         }
 
         void Update()

@@ -26,9 +26,15 @@ namespace Medallas.Enemies
 
         readonly List<GameObject> aliveEnemies = new List<GameObject>();
         int medalIndex;
+        bool started;
 
-        void Start()
+        // Las oleadas no arrancan solas: las dispara el menu de inicio
+        // (ver StartMenuController) para que el jugador tenga tiempo de
+        // ubicarse antes de que aparezcan enemigos.
+        public void BeginGame()
         {
+            if (started) return;
+            started = true;
             StartCoroutine(RunWaves());
         }
 

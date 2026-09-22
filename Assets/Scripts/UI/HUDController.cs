@@ -16,6 +16,7 @@ namespace Medallas.UI
         public Text medalsText;
         public Text pointsText;
         public Text ammoText;
+        public Text weaponText;
         public Text messageText;
         public AmmoSystem ammoSystem;
         public RewardMachineController rewardMachine;
@@ -43,6 +44,10 @@ namespace Medallas.UI
                 ammoSystem.OnAmmoChanged += HandleAmmoChanged;
             }
 
+            Medallas.Weapon.WeaponController.WeaponEquipped += HandleWeaponEquipped;
+            Medallas.Weapon.WeaponController.WeaponUnequipped += HandleWeaponUnequipped;
+            if (weaponText != null) weaponText.text = "ARMA: NINGUNA";
+
             if (rewardMachine != null)
             {
                 rewardMachine.onNotEnoughMedals.AddListener(HandleNotEnoughMedals);
@@ -63,6 +68,9 @@ namespace Medallas.UI
 
             if (ammoSystem != null)
                 ammoSystem.OnAmmoChanged -= HandleAmmoChanged;
+
+            Medallas.Weapon.WeaponController.WeaponEquipped -= HandleWeaponEquipped;
+            Medallas.Weapon.WeaponController.WeaponUnequipped -= HandleWeaponUnequipped;
 
             if (rewardMachine != null)
             {
@@ -89,6 +97,16 @@ namespace Medallas.UI
         void HandleAmmoChanged(int ammo)
         {
             if (ammoText != null) ammoText.text = $"MUNICION: {ammo}";
+        }
+
+        void HandleWeaponEquipped(WeaponData data)
+        {
+            if (weaponText != null) weaponText.text = "ARMA: " + (data != null ? data.weaponName.ToUpper() : "?");
+        }
+
+        void HandleWeaponUnequipped(WeaponData data)
+        {
+            if (weaponText != null) weaponText.text = "ARMA: NINGUNA";
         }
 
         void HandleNotEnoughMedals()
