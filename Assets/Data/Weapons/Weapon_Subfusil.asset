@@ -20,7 +20,7 @@ MonoBehaviour:
   automatic: 1
   pelletCount: 1
   spreadAngle: 1
-  fireSound: {fileID: 0}
-  emptySound: {fileID: 0}
-  muzzleFlashPrefab: {fileID: 0}
-  impactEffectPrefab: {fileID: 0}
+  fireSound: {fileID: 8300000, guid: dc0336a7fbe41c845bfe5947592c3752, type: 3}
+  emptySound: {fileID: 8300000, guid: cd737334b5f5cf54e93f9e8625194c0e, type: 3}
+  muzzleFlashPrefab: {fileID: 7663317149412735607, guid: d89bebd8a834a794899ad39829ac6e83, type: 3}
+  impactEffectPrefab: {fileID: 4387024296546068328, guid: eeafadac11bc164408552a6c73fcd06c, type: 3}
