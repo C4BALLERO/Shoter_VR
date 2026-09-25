@@ -19,3 +19,11 @@ Usado para: modelo + animaciones (Idle, Walk, Bite) del enemigo Rondador.
 Fuente: https://quaternius.com/packs/animatedmonster.html
 Licencia: CC0 (dominio publico).
 Usado: solo el modelo Skeleton (Idle, Running, Attack, Death) para el enemigo Corredor. Bat/Dragon/Slime no se usan.
+
+## Prototype Textures (Kenney) — CC0
+Fuente: https://kenney.nl/assets/prototype-textures
+Licencia: CC0 (dominio publico).
+Usado para: textura de piso, paredes y sala de recompensa (variante "Dark", texturas 01/04/07 del pack).
+
+## Musica ambiental y sonidos de disparo
+Generados por codigo (sintesis de audio: ondas senoidales + ruido filtrado), no son assets descargados. Ver AddPolishBatch.cs y AddWeaponFeedback.cs en el historial de Git si se quieren regenerar o ajustar.
