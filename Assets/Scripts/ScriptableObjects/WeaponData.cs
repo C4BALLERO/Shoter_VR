@@ -19,5 +19,7 @@ namespace Medallas.Data
         public AudioClip emptySound;
         public GameObject muzzleFlashPrefab;
         public GameObject impactEffectPrefab;
+        public GameObject bulletTracerPrefab;
+        public float tracerSpeed = 120f;
     }
 }

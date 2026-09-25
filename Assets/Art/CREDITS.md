@@ -27,3 +27,16 @@ Usado para: textura de piso, paredes y sala de recompensa (variante "Dark", text
 
 ## Musica ambiental y sonidos de disparo
 Generados por codigo (sintesis de audio: ondas senoidales + ruido filtrado), no son assets descargados. Ver AddPolishBatch.cs y AddWeaponFeedback.cs en el historial de Git si se quieren regenerar o ajustar.
+
+## Furniture Kit (Kenney) — CC0
+Fuente: https://kenney.nl/assets/furniture-kit
+Licencia: CC0 (dominio publico, atribucion no requerida pero apreciada).
+Usado para: mesas, sillas y alfombras que decoran la sala principal (formato GLTF).
+
+## Wooden Planks Texture (kinnybean, OpenGameArt) — CC-BY 3.0
+Fuente: https://opengameart.org/content/simple-seamless-hand-painted-wooden-planks-texture
+Licencia: CC-BY 3.0 (requiere atribucion). Autor: kinnybean.
+Usado para: textura de madera del piso y las paredes (difuso, normal, specular, oclusion).
+
+## Antorchas
+Antorchas y su parpadeo (TorchFlicker.cs) son geometria simple + luz generadas por codigo, no assets descargados.
