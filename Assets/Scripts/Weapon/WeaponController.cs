@@ -102,15 +102,29 @@ namespace Medallas.Weapon
             for (int i = 0; i < pellets; i++)
             {
                 Vector3 direction = ApplySpread(baseDirection, weaponData.spreadAngle);
+                Vector3 tracerEnd = origin + direction * weaponData.range;
 
                 if (Physics.Raycast(origin, direction, out RaycastHit hit, weaponData.range, hittableLayers))
                 {
                     DamageSystem.ApplyDamage(hit.collider.gameObject, weaponData.damage);
+                    tracerEnd = hit.point;
 
                     if (weaponData.impactEffectPrefab != null)
                         Object.Instantiate(weaponData.impactEffectPrefab, hit.point, Quaternion.LookRotation(hit.normal));
                 }
+
+                SpawnTracer(origin, tracerEnd);
             }
+        }
+
+        void SpawnTracer(Vector3 origin, Vector3 endPoint)
+        {
+            if (weaponData.bulletTracerPrefab == null) return;
+
+            var tracerObj = Object.Instantiate(weaponData.bulletTracerPrefab, origin, Quaternion.identity);
+            var tracer = tracerObj.GetComponent<BulletTracer>();
+            if (tracer != null)
+                tracer.Init(origin, endPoint, weaponData.tracerSpeed);
         }
 
         static Vector3 ApplySpread(Vector3 direction, float spreadAngle)

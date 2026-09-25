@@ -24,3 +24,5 @@ MonoBehaviour:
   emptySound: {fileID: 8300000, guid: cd737334b5f5cf54e93f9e8625194c0e, type: 3}
   muzzleFlashPrefab: {fileID: 7663317149412735607, guid: d89bebd8a834a794899ad39829ac6e83, type: 3}
   impactEffectPrefab: {fileID: 4387024296546068328, guid: eeafadac11bc164408552a6c73fcd06c, type: 3}
+  bulletTracerPrefab: {fileID: 8414133865021839607, guid: b18160b8828833e4295c16c8fff2fe06, type: 3}
+  tracerSpeed: 120
