@@ -16,15 +16,20 @@ namespace Medallas.Medals
 
         readonly HashSet<string> collectedMedalIds = new HashSet<string>();
         int spentMedals;
+        int bonusMedals;
 
         public event Action<MedalData> OnMedalCollected;
         public event Action<int, int> OnMedalCountChanged;
+        public event Action<int> OnBonusMedalsAdded;
 
         public int CollectedCount => collectedMedalIds.Count;
         // Gastar medallas (maquina expendedora) no borra las recogidas: la
         // maquina de recompensa final cuenta las recogidas, no el saldo.
         public int SpentCount => spentMedals;
-        public int AvailableCount => Mathf.Max(0, CollectedCount - spentMedals);
+        // Medallas extra de los niveles 2+: solo suman saldo para gastar, no
+        // cuentan como coleccionables unicas.
+        public int BonusCount => bonusMedals;
+        public int AvailableCount => Mathf.Max(0, CollectedCount + bonusMedals - spentMedals);
         public int TotalCount => gameConfig != null ? gameConfig.totalMedalCount : collectedMedalIds.Count;
 
         void Awake()
@@ -66,12 +71,21 @@ namespace Medallas.Medals
             return true;
         }
 
+        public void AddBonusMedals(int amount)
+        {
+            if (amount <= 0) return;
+            bonusMedals += amount;
+            OnBonusMedalsAdded?.Invoke(amount);
+            OnMedalCountChanged?.Invoke(CollectedCount, TotalCount);
+        }
+
         // Usado por el SaveSystem para restaurar el progreso.
-        public void RestoreCollectedMedals(IEnumerable<string> medalIds, int spent)
+        public void RestoreCollectedMedals(IEnumerable<string> medalIds, int spent, int bonus)
         {
             collectedMedalIds.Clear();
             foreach (var id in medalIds) collectedMedalIds.Add(id);
-            spentMedals = Mathf.Clamp(spent, 0, collectedMedalIds.Count);
+            bonusMedals = Mathf.Max(0, bonus);
+            spentMedals = Mathf.Clamp(spent, 0, collectedMedalIds.Count + bonusMedals);
             OnMedalCountChanged?.Invoke(CollectedCount, TotalCount);
         }
 

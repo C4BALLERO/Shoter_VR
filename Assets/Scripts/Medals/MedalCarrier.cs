@@ -10,15 +10,18 @@ namespace Medallas.Medals
     public class MedalCarrier : MonoBehaviour, IDamageable
     {
         public MedalData data;
+        [Tooltip("Medalla extra (niveles 2+): suma saldo para la tienda en vez de una coleccionable unica.")]
+        public bool bonus;
 
         public bool IsDead { get; private set; }
 
         public void TakeDamage(int amount)
         {
-            if (IsDead || data == null) return;
+            if (IsDead || (data == null && !bonus)) return;
             IsDead = true;
 
-            MedalManager.Instance?.CollectMedal(data);
+            if (bonus) MedalManager.Instance?.AddBonusMedals(1);
+            else MedalManager.Instance?.CollectMedal(data);
             Destroy(gameObject);
         }
     }

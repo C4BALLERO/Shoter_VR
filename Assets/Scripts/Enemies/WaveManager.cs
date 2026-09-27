@@ -1,16 +1,18 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Medallas.Data;
 using Medallas.Medals;
 using Medallas.UI;
+using Random = UnityEngine.Random;
 
 namespace Medallas.Enemies
 {
     // Hace aparecer enemigos por oleadas desde el fondo de la zona de
-    // enemigos. Algunos enemigos cargan un medallon (ver MedalCarrier) que
-    // reparte las medallas configuradas. Reutiliza el mismo EnemyAI/Health
-    // de siempre; solo controla cuando y donde aparecen.
+    // enemigos. Un "nivel" son totalWaves oleadas; al terminarlas avisa con
+    // LevelCompleted y el jugador decide si continua al siguiente (mas dificil).
+    // Algunos enemigos cargan un medallon (ver MedalCarrier).
     public class WaveManager : MonoBehaviour
     {
         public GameObject[] enemyPrefabs;
@@ -26,35 +28,54 @@ namespace Medallas.Enemies
         [Tooltip("La asigna StartMenuController segun el modo elegido.")]
         public DifficultyData difficulty;
 
+        [Header("Niveles")]
+        public int level = 1;
+        [Tooltip("Medallas extra (solo saldo) por nivel a partir del nivel 2.")]
+        public int bonusMedalsPerLevel = 4;
+
+        public event Action<int> LevelCompleted;
+
         readonly List<GameObject> aliveEnemies = new List<GameObject>();
         int medalIndex;
-        bool started;
+        int bonusMedalsThisLevel;
+        bool running;
+
+        public bool IsRunning => running;
 
         // Las oleadas no arrancan solas: las dispara el menu de inicio
         // (ver StartMenuController) para que el jugador tenga tiempo de
         // ubicarse antes de que aparezcan enemigos.
         public void BeginGame()
         {
-            if (started) return;
-            started = true;
-            if (difficulty != null) enemiesPerWave = difficulty.enemiesPerWave;
+            if (running) return;
+            running = true;
+            bonusMedalsThisLevel = 0;
+            if (difficulty != null) enemiesPerWave = difficulty.EnemiesPerWave(level);
             StartCoroutine(RunWaves());
+        }
+
+        public void BeginNextLevel()
+        {
+            if (running) return;
+            level++;
+            BeginGame();
         }
 
         IEnumerator RunWaves()
         {
             for (int wave = 1; wave <= totalWaves; wave++)
             {
-                Debug.Log($"[WaveManager] Iniciando oleada {wave}/{totalWaves}");
-                hud?.ShowMessage($"OLEADA {wave} / {totalWaves}");
+                Debug.Log($"[WaveManager] Nivel {level} - oleada {wave}/{totalWaves}");
+                hud?.ShowMessage($"NIVEL {level} - OLEADA {wave} / {totalWaves}");
 
                 yield return StartCoroutine(SpawnWave());
                 yield return new WaitUntil(AllEnemiesGone);
-                yield return new WaitForSeconds(delayBetweenWaves);
+                if (wave < totalWaves) yield return new WaitForSeconds(delayBetweenWaves);
             }
 
-            Debug.Log("[WaveManager] Todas las oleadas completadas.");
-            hud?.ShowMessage("TODAS LAS OLEADAS COMPLETADAS");
+            Debug.Log($"[WaveManager] Nivel {level} completado.");
+            running = false;
+            LevelCompleted?.Invoke(level);
         }
 
         bool AllEnemiesGone()
@@ -85,14 +106,26 @@ namespace Medallas.Enemies
             var ai = enemy.GetComponent<EnemyAI>();
             if (ai != null)
             {
-                ai.ApplyDifficulty(difficulty);
+                ai.ApplyDifficulty(difficulty, level);
                 ai.OnEnemyDefeated += HandleEnemyDefeated;
             }
 
-            if (medalIndex < medalsToDistribute.Length && Random.value < 0.6f)
-            {
-                AttachMedal(enemy, medalsToDistribute[medalIndex]);
+            if (Random.value >= 0.6f) return;
+
+            // Al continuar una partida guardada, no repartir medallas ya recogidas.
+            while (medalIndex < medalsToDistribute.Length && MedalManager.Instance != null
+                   && MedalManager.Instance.HasCollected(medalsToDistribute[medalIndex].medalId))
                 medalIndex++;
+
+            if (medalIndex < medalsToDistribute.Length)
+            {
+                AttachMedal(enemy, medalsToDistribute[medalIndex], false);
+                medalIndex++;
+            }
+            else if (level > 1 && bonusMedalsThisLevel < bonusMedalsPerLevel)
+            {
+                AttachMedal(enemy, null, true);
+                bonusMedalsThisLevel++;
             }
         }
 
@@ -101,7 +134,7 @@ namespace Medallas.Enemies
             Medallas.Core.ScoreManager.Instance?.RegisterKill(score);
         }
 
-        void AttachMedal(GameObject enemy, MedalData medal)
+        void AttachMedal(GameObject enemy, MedalData medal, bool bonus)
         {
             if (medalCarrierVisualPrefab == null) return;
 
@@ -112,6 +145,7 @@ namespace Medallas.Enemies
             var carrier = visual.GetComponent<MedalCarrier>();
             if (carrier == null) carrier = visual.AddComponent<MedalCarrier>();
             carrier.data = medal;
+            carrier.bonus = bonus;
         }
     }
 }

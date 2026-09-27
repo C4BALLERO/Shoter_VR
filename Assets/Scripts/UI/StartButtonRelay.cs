@@ -10,6 +10,8 @@ namespace Medallas.UI
     public class StartButtonRelay : MonoBehaviour
     {
         public StartMenuController controller;
+        [Tooltip("Boton azul de continuar la partida guardada (en vez del verde de iniciar).")]
+        public bool isContinueButton;
 
         void OnEnable()
         {
@@ -23,7 +25,9 @@ namespace Medallas.UI
 
         void OnSelectEntered(SelectEnterEventArgs args)
         {
-            controller?.StartGame();
+            if (controller == null) return;
+            if (isContinueButton) controller.ContinueGame();
+            else controller.StartGame();
         }
     }
 }

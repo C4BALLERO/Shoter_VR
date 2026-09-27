@@ -25,6 +25,8 @@ EXPLORAR → LOCALIZAR OBJETIVO → DISPARAR / INTERACTUAR → OBTENER MEDALLA
 - **Máquina expendedora ("tiro de suerte")**: cada tirada gasta 1 medalla disponible y suelta un arma al azar en su bandeja (Pistola 45%, Subfusil 35%, Escopeta 20%). Gastar medallas no resta de las recogidas: la máquina de recompensa final sigue contando todas las que encontraste.
 - **Tienda de medallas**: panel en la pared sur con 4 compras: Curar +50 vida (1 medalla), Daño x2 por 20 s (2), Escudo -50% de daño por 20 s (2) y Disparo rápido por 20 s (1). Si la compra no se puede aplicar (vida llena o jugador caído) no se cobra; comprar un power-up activo suma tiempo.
 - **Dificultad**: Fácil, Medio o Difícil, elegida con los botones de la barrera antes de iniciar. Cambia la vida del jugador (150/100/80), la vida, daño y velocidad de los enemigos, su frecuencia y puntería al lanzar hachas, y cuántos aparecen por oleada (4/5/7).
+- **Niveles**: un nivel son 5 oleadas. Al terminarlo se autoguarda y el botón verde pasa a "Siguiente nivel", más difícil que el anterior (+25% vida y +15% daño enemigo, +5% velocidad, hachas un 10% más seguido y +1 enemigo por oleada por nivel, sobre el modo elegido). Desde el nivel 2 algunos enemigos cargan medallas extra (hasta 4 por nivel) que solo suman saldo para la tienda y la expendedora.
+- **Continuar otro día**: el menú muestra "Nueva partida" (verde) y, si hay partida guardada, "Continuar" (azul) con el nivel y modo guardados. Continuar restaura medallas, puntos y bajas y retoma desde el inicio del nivel guardado; Nueva partida reemplaza la partida guardada.
 - **Galería de tiro**: 3 objetivos reutilizables que suman puntos y reaparecen tras un tiempo.
 - **Enemigos**: 2 tipos simples (Rondador, Corredor) que persiguen y atacan al jugador usando NavMesh.
 - **Máquina de recompensa**: al reunir la cantidad configurada de medallas, entrega una recompensa (llave de salida).
@@ -64,7 +66,7 @@ Cada uno resuelve un problema real de mantenimiento/balance, evitando hardcodear
 
 ## Sistema de guardado
 
-`SaveSystem` (estático) serializa un `SaveData` (medallas recogidas y gastadas, puntaje, bajas, munición, si la recompensa ya fue entregada) a JSON en `Application.persistentDataPath/savegame.json` mediante `JsonUtility`. Se demuestra con las dos estaciones físicas "SaveStation" / "LoadStation" en la escena (interacción VR simple), o llamando a `SaveSystem.SaveGame()` / `SaveSystem.LoadGame()` desde código.
+`SaveSystem` (estático) serializa un `SaveData` (medallas recogidas, extra y gastadas, puntaje, bajas, munición, si la recompensa ya fue entregada, nivel a retomar y dificultad elegida) a JSON en `Application.persistentDataPath/savegame.json` mediante `JsonUtility`. Se demuestra con las dos estaciones físicas "SaveStation" / "LoadStation" en la escena (interacción VR simple), o llamando a `SaveSystem.SaveGame()` / `SaveSystem.LoadGame()` desde código.
 
 ## Controles
 

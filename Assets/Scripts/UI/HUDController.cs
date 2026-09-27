@@ -37,6 +37,7 @@ namespace Medallas.UI
             {
                 MedalManager.Instance.OnMedalCountChanged += HandleMedalCountChanged;
                 MedalManager.Instance.OnMedalCollected += HandleMedalCollected;
+                MedalManager.Instance.OnBonusMedalsAdded += HandleBonusMedals;
                 HandleMedalCountChanged(MedalManager.Instance.CollectedCount, MedalManager.Instance.TotalCount);
             }
 
@@ -75,6 +76,7 @@ namespace Medallas.UI
             {
                 MedalManager.Instance.OnMedalCountChanged -= HandleMedalCountChanged;
                 MedalManager.Instance.OnMedalCollected -= HandleMedalCollected;
+                MedalManager.Instance.OnBonusMedalsAdded -= HandleBonusMedals;
             }
 
             if (ScoreManager.Instance != null)
@@ -137,6 +139,11 @@ namespace Medallas.UI
         void HandleMedalCollected(MedalData medal)
         {
             ShowMessage("MEDALLA OBTENIDA");
+        }
+
+        void HandleBonusMedals(int amount)
+        {
+            ShowMessage($"MEDALLA EXTRA +{amount}");
         }
 
         void HandleMedalCountChanged(int collected, int total)
