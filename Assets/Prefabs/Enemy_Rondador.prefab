@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 3557243646248477709}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0.5}
+  m_LocalPosition: {x: 0, y: 0.27, z: 0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -67,7 +67,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 1.9}
+  m_AnchoredPosition: {x: 0, y: 1}
   m_SizeDelta: {x: 200, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &3643969496164136905
@@ -316,9 +316,9 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5
-  m_Height: 2
+  m_Height: 1.8
   m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: -0.1, z: 0}
 --- !u!114 &1267693683705319470
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -331,7 +331,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 634aec6d0fb0f2d43a6ce6ed784f6dda, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Medallas.Core.Health
-  maxHealth: 30
+  maxHealth: 90
   OnDamaged:
     m_PersistentCalls:
       m_Calls: []
@@ -375,11 +375,15 @@ MonoBehaviour:
   data: {fileID: 11400000, guid: 324a28ac924bc6a4689cc2d3cb8bd806, type: 2}
   target: {fileID: 0}
   scoreValueOverride: -1
-  projectilePrefab: {fileID: 357918224098090723, guid: 9dcbb8bab4b65e246aabdba487820d44, type: 3}
+  projectilePrefab: {fileID: 427422159540243077, guid: e175bb216894d9448a048efb95cf9822, type: 3}
   throwPoint: {fileID: 538583132398402697}
-  throwCooldown: 2.5
-  throwSpeed: 11
-  throwArcBoost: 6
+  throwCooldown: 3.5
+  maxThrowRange: 14
+  throwSpeed: 7
+  minFlightTime: 0.9
+  maxFlightTime: 2
+  aimBelowHead: 0.4
+  aimSpread: 0.35
   animator: {fileID: 1131746574605642518}
   turnSpeed: 6
 --- !u!1001 &9145574871372954222
@@ -392,15 +396,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: d1a50667c063b0c43985f2985113f7d2, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.33749998
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d1a50667c063b0c43985f2985113f7d2, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.33749998
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d1a50667c063b0c43985f2985113f7d2, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.33749998
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: d1a50667c063b0c43985f2985113f7d2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -446,6 +450,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Model
       objectReference: {fileID: 0}
+    - target: {fileID: 7328420972315061595, guid: d1a50667c063b0c43985f2985113f7d2, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 8fef23527cbcbeb47bb881369084d590, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
