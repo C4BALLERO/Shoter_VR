@@ -22,6 +22,7 @@ namespace Medallas.UI
         public RewardMachineController rewardMachine;
         public Health playerHealth;
         public Image healthBarFill;
+        public Text healthText;
         public float messageDuration = 3f;
 
         Coroutine messageRoutine;
@@ -160,7 +161,9 @@ namespace Medallas.UI
         void HandleHealthChanged(int current)
         {
             if (healthBarFill == null || playerHealth == null) return;
-            healthBarFill.fillAmount = playerHealth.maxHealth > 0 ? Mathf.Clamp01((float)current / playerHealth.maxHealth) : 0f;
+            float fraction = playerHealth.maxHealth > 0 ? Mathf.Clamp01((float)current / playerHealth.maxHealth) : 0f;
+            healthBarFill.fillAmount = fraction;
+            if (healthText != null) healthText.text = $"VIDA {Mathf.RoundToInt(fraction * 100f)}%";
 
             if (current <= 0)
                 ShowMessage("HAS CAIDO");

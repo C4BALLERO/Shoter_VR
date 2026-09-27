@@ -33,11 +33,13 @@ namespace Medallas.Weapon
             var interactors = Object.FindObjectsByType<NearFarInteractor>(FindObjectsSortMode.None);
             if (interactors.Length == 0) yield break;
 
+            // Los dos interactores se llaman igual ("Near-Far Interactor"); la
+            // mano se sabe por su handedness, no por el nombre.
+            var wanted = rightHand ? InteractorHandedness.Right : InteractorHandedness.Left;
             NearFarInteractor chosen = null;
             foreach (var interactor in interactors)
             {
-                bool isRight = interactor.name.ToLower().Contains("right");
-                if (isRight == rightHand) { chosen = interactor; break; }
+                if (interactor.handedness == wanted) { chosen = interactor; break; }
             }
             if (chosen == null) chosen = interactors[0];
 
