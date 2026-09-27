@@ -1,9 +1,11 @@
+using System;
 using System.IO;
 using UnityEngine;
 using Medallas.Medals;
 using Medallas.Core;
 using Medallas.Weapon;
 using Medallas.RewardMachine;
+using Medallas.UI;
 
 namespace Medallas.SaveSystem
 {
@@ -22,6 +24,7 @@ namespace Medallas.SaveSystem
             {
                 data.collectedMedalIds.AddRange(MedalManager.Instance.GetCollectedMedalIds());
                 data.spentMedals = MedalManager.Instance.SpentCount;
+                data.bonusMedals = MedalManager.Instance.BonusCount;
             }
 
             if (ScoreManager.Instance != null)
@@ -30,13 +33,22 @@ namespace Medallas.SaveSystem
                 data.kills = ScoreManager.Instance.Kills;
             }
 
-            var ammoSystem = Object.FindFirstObjectByType<AmmoSystem>();
+            var ammoSystem = UnityEngine.Object.FindFirstObjectByType<AmmoSystem>();
             if (ammoSystem != null)
                 data.ammo = ammoSystem.CurrentAmmo;
 
-            var rewardMachine = Object.FindFirstObjectByType<RewardMachineController>();
+            var rewardMachine = UnityEngine.Object.FindFirstObjectByType<RewardMachineController>();
             if (rewardMachine != null)
                 data.rewardGranted = rewardMachine.rewardGranted;
+
+            var menu = UnityEngine.Object.FindFirstObjectByType<StartMenuController>();
+            if (menu != null)
+            {
+                data.level = menu.ResumeLevel;
+                data.difficultyIndex = menu.selectedIndex;
+            }
+
+            data.savedAt = DateTime.Now.ToString("dd/MM/yyyy HH:mm");
 
             string json = JsonUtility.ToJson(data, true);
             File.WriteAllText(SavePath, json);
@@ -48,19 +60,39 @@ namespace Medallas.SaveSystem
             return File.Exists(SavePath);
         }
 
+        public static bool TryReadSave(out SaveData data)
+        {
+            data = null;
+            if (!HasSaveFile()) return false;
+
+            try
+            {
+                data = JsonUtility.FromJson<SaveData>(File.ReadAllText(SavePath));
+            }
+            catch (Exception e)
+            {
+                // Un archivo corrupto no debe bloquear el menu: se trata como "sin partida".
+                Debug.LogWarning("[SaveSystem] No se pudo leer la partida guardada: " + e.Message);
+                data = null;
+            }
+            return data != null;
+        }
+
+        public static void DeleteSave()
+        {
+            if (HasSaveFile()) File.Delete(SavePath);
+        }
+
         public static void LoadGame()
         {
-            if (!HasSaveFile())
+            if (!TryReadSave(out var data))
             {
                 Debug.LogWarning("[SaveSystem] No hay partida guardada.");
                 return;
             }
 
-            string json = File.ReadAllText(SavePath);
-            var data = JsonUtility.FromJson<SaveData>(json);
-
             if (MedalManager.Instance != null)
-                MedalManager.Instance.RestoreCollectedMedals(data.collectedMedalIds, data.spentMedals);
+                MedalManager.Instance.RestoreCollectedMedals(data.collectedMedalIds, data.spentMedals, data.bonusMedals);
 
             if (ScoreManager.Instance != null)
             {
@@ -68,11 +100,11 @@ namespace Medallas.SaveSystem
                 ScoreManager.Instance.SetKills(data.kills);
             }
 
-            var ammoSystem = Object.FindFirstObjectByType<AmmoSystem>();
+            var ammoSystem = UnityEngine.Object.FindFirstObjectByType<AmmoSystem>();
             if (ammoSystem != null)
                 ammoSystem.SetAmmo(data.ammo);
 
-            var rewardMachine = Object.FindFirstObjectByType<RewardMachineController>();
+            var rewardMachine = UnityEngine.Object.FindFirstObjectByType<RewardMachineController>();
             if (rewardMachine != null)
                 rewardMachine.rewardGranted = data.rewardGranted;
 

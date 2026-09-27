@@ -38,15 +38,17 @@ namespace Medallas.Enemies
         float nextAttackTime;
         float nextThrowTime;
         DifficultyData difficulty;
+        int level = 1;
 
         public System.Action<int> OnEnemyDefeated;
 
-        float DamageMultiplier => difficulty != null ? difficulty.enemyDamageMultiplier : 1f;
+        float DamageMultiplier => difficulty != null ? difficulty.DamageMultiplier(level) : 1f;
 
         // Se llama justo despues de Instantiate (antes de Start) desde WaveManager.
-        public void ApplyDifficulty(DifficultyData settings)
+        public void ApplyDifficulty(DifficultyData settings, int currentLevel)
         {
             difficulty = settings;
+            level = Mathf.Max(1, currentLevel);
         }
 
         void Awake()
@@ -60,14 +62,14 @@ namespace Medallas.Enemies
         {
             if (difficulty != null)
             {
-                throwCooldown *= difficulty.throwCooldownMultiplier;
+                throwCooldown *= difficulty.ThrowCooldownMultiplier(level);
                 aimSpread *= difficulty.aimSpreadMultiplier;
             }
 
             if (data != null)
             {
-                float healthMult = difficulty != null ? difficulty.enemyHealthMultiplier : 1f;
-                float speedMult = difficulty != null ? difficulty.enemySpeedMultiplier : 1f;
+                float healthMult = difficulty != null ? difficulty.HealthMultiplier(level) : 1f;
+                float speedMult = difficulty != null ? difficulty.SpeedMultiplier(level) : 1f;
                 health.maxHealth = Mathf.Max(1, Mathf.RoundToInt(data.maxHealth * healthMult));
                 health.ResetHealth();
                 agent.speed = data.moveSpeed * speedMult;
