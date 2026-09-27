@@ -15,6 +15,9 @@ MonoBehaviour:
   weaponName: Pistola Estandar
   damage: 15
   magazineSize: 12
+  spareMagazines: 0
+  infiniteReserve: 1
+  reloadTime: 1.2
   fireRate: 0.3
   range: 40
   automatic: 0

@@ -43,5 +43,11 @@ Fuente: https://kenney.nl/assets/survival-kit
 Licencia: CC0 (dominio publico).
 Usado: solo `tool-axe` y `tool-axe-upgraded` (+ su `colormap.png`) como hachas que lanzan los enemigos.
 
+## Vending Machine (DavesParable, Poly Pizza) — CC-BY 3.0
+Fuente: https://poly.pizza/m/KJxNU39kOa
+Licencia: CC-BY 3.0 (requiere atribucion). Autor: DavesParable.
+Usado para: la maquina expendedora del "tiro de suerte" (VendingMachine.glb).
+Sus sonidos (Vending_Spin/Dispense/Deny.wav) se generaron por codigo.
+
 ## Antorchas
 Antorchas y su parpadeo (TorchFlicker.cs) son geometria simple + luz generadas por codigo, no assets descargados.

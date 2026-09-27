@@ -19,7 +19,10 @@ namespace Medallas.SaveSystem
             var data = new SaveData();
 
             if (MedalManager.Instance != null)
+            {
                 data.collectedMedalIds.AddRange(MedalManager.Instance.GetCollectedMedalIds());
+                data.spentMedals = MedalManager.Instance.SpentCount;
+            }
 
             if (ScoreManager.Instance != null)
                 data.score = ScoreManager.Instance.CurrentScore;
@@ -54,7 +57,7 @@ namespace Medallas.SaveSystem
             var data = JsonUtility.FromJson<SaveData>(json);
 
             if (MedalManager.Instance != null)
-                MedalManager.Instance.RestoreCollectedMedals(data.collectedMedalIds);
+                MedalManager.Instance.RestoreCollectedMedals(data.collectedMedalIds, data.spentMedals);
 
             if (ScoreManager.Instance != null)
                 ScoreManager.Instance.SetScore(data.score);

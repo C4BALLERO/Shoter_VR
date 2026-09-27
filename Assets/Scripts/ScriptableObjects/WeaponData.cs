@@ -10,6 +10,10 @@ namespace Medallas.Data
         public string weaponName;
         public int damage = 10;
         public int magazineSize = 10;
+        public int spareMagazines = 4;
+        [Tooltip("Reserva infinita: la pistola inicial la usa para que el jugador nunca quede sin forma de defenderse.")]
+        public bool infiniteReserve = false;
+        public float reloadTime = 1.5f;
         public float fireRate = 0.25f;
         public float range = 50f;
         public bool automatic = false;

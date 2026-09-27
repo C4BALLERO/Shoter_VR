@@ -25,6 +25,7 @@ namespace Medallas.UI
         public float messageDuration = 3f;
 
         Coroutine messageRoutine;
+        AmmoSystem boundAmmo;
 
         void OnEnable()
         {
@@ -41,13 +42,11 @@ namespace Medallas.UI
                 HandleScoreChanged(ScoreManager.Instance.CurrentScore);
             }
 
-            if (ammoSystem != null)
-            {
-                ammoSystem.OnAmmoChanged += HandleAmmoChanged;
-            }
+            BindAmmo(ammoSystem);
 
-            Medallas.Weapon.WeaponController.WeaponEquipped += HandleWeaponEquipped;
-            Medallas.Weapon.WeaponController.WeaponUnequipped += HandleWeaponUnequipped;
+            WeaponController.WeaponEquipped += HandleWeaponEquipped;
+            WeaponController.WeaponUnequipped += HandleWeaponUnequipped;
+            WeaponController.DryFired += HandleDryFired;
             if (weaponText != null) weaponText.text = "ARMA: NINGUNA";
 
             if (playerHealth != null)
@@ -74,11 +73,11 @@ namespace Medallas.UI
             if (ScoreManager.Instance != null)
                 ScoreManager.Instance.OnScoreChanged -= HandleScoreChanged;
 
-            if (ammoSystem != null)
-                ammoSystem.OnAmmoChanged -= HandleAmmoChanged;
+            BindAmmo(null);
 
-            Medallas.Weapon.WeaponController.WeaponEquipped -= HandleWeaponEquipped;
-            Medallas.Weapon.WeaponController.WeaponUnequipped -= HandleWeaponUnequipped;
+            WeaponController.WeaponEquipped -= HandleWeaponEquipped;
+            WeaponController.WeaponUnequipped -= HandleWeaponUnequipped;
+            WeaponController.DryFired -= HandleDryFired;
 
             if (playerHealth != null)
                 playerHealth.OnDamaged.RemoveListener(HandleHealthChanged);
@@ -95,9 +94,11 @@ namespace Medallas.UI
             ShowMessage("MEDALLA OBTENIDA");
         }
 
-        void HandleMedalCountChanged(int current, int total)
+        void HandleMedalCountChanged(int collected, int total)
         {
-            if (medalsText != null) medalsText.text = $"MEDALLAS: {current} / {total}";
+            if (medalsText == null) return;
+            int available = MedalManager.Instance != null ? MedalManager.Instance.AvailableCount : collected;
+            medalsText.text = $"MEDALLAS: {available} ({collected}/{total})";
         }
 
         void HandleScoreChanged(int score)
@@ -105,17 +106,53 @@ namespace Medallas.UI
             if (pointsText != null) pointsText.text = $"PUNTOS: {score}";
         }
 
-        void HandleAmmoChanged(int ammo)
+        void BindAmmo(AmmoSystem ammo)
         {
-            if (ammoText != null) ammoText.text = $"MUNICION: {ammo}";
+            if (boundAmmo != null)
+            {
+                boundAmmo.OnAmmoChanged -= HandleAmmoChanged;
+                boundAmmo.OnReloadStateChanged -= HandleReloadStateChanged;
+            }
+
+            boundAmmo = ammo;
+
+            if (boundAmmo != null)
+            {
+                boundAmmo.OnAmmoChanged += HandleAmmoChanged;
+                boundAmmo.OnReloadStateChanged += HandleReloadStateChanged;
+                HandleAmmoChanged(boundAmmo.CurrentAmmo);
+            }
         }
 
-        void HandleWeaponEquipped(WeaponData data)
+        void HandleAmmoChanged(int magazine)
         {
+            if (ammoText == null || boundAmmo == null) return;
+            string reserve = boundAmmo.InfiniteReserve ? "∞" : boundAmmo.ReserveAmmo.ToString();
+            ammoText.text = $"MUNICION: {magazine} / {reserve}";
+        }
+
+        void HandleReloadStateChanged(bool reloading)
+        {
+            if (reloading) ShowMessage("RECARGANDO...");
+            else if (messageText != null && messageText.text == "RECARGANDO...") messageText.text = string.Empty;
+        }
+
+        void HandleDryFired(WeaponController weapon)
+        {
+            if (weapon.ammoSystem != null && weapon.ammoSystem.CanReload)
+                ShowMessage("SIN BALAS - RECARGA CON M (o boton A)");
+            else
+                ShowMessage("SIN MUNICION - CONSIGUE OTRA ARMA");
+        }
+
+        void HandleWeaponEquipped(WeaponController weapon)
+        {
+            var data = weapon.weaponData;
             if (weaponText != null) weaponText.text = "ARMA: " + (data != null ? data.weaponName.ToUpper() : "?");
+            BindAmmo(weapon.ammoSystem);
         }
 
-        void HandleWeaponUnequipped(WeaponData data)
+        void HandleWeaponUnequipped(WeaponController weapon)
         {
             if (weaponText != null) weaponText.text = "ARMA: NINGUNA";
         }

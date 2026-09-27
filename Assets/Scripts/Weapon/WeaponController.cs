@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using Medallas.Data;
@@ -18,19 +19,35 @@ namespace Medallas.Weapon
 
         XRGrabInteractable grabInteractable;
         AudioSource audioSource;
+        InputAction reloadAction;
         float nextFireTime;
         bool triggerHeld;
 
-        // Para el HUD: cualquier arma avisa cuando la agarran/sueltan, sin
-        // necesidad de que el HUD conozca cada arma de la escena.
-        public static event System.Action<WeaponData> WeaponEquipped;
-        public static event System.Action<WeaponData> WeaponUnequipped;
+        // Para el HUD: cualquier arma avisa cuando la agarran/sueltan o se
+        // queda sin balas, sin que el HUD conozca cada arma de la escena.
+        public static event System.Action<WeaponController> WeaponEquipped;
+        public static event System.Action<WeaponController> WeaponUnequipped;
+        public static event System.Action<WeaponController> DryFired;
 
         void Awake()
         {
             grabInteractable = GetComponent<XRGrabInteractable>();
             audioSource = GetComponent<AudioSource>();
             if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+            if (ammoSystem != null) ammoSystem.Configure(weaponData);
+
+            // M en el teclado (simulador en PC) y boton A/X en el Quest.
+            reloadAction = new InputAction("Reload", InputActionType.Button);
+            reloadAction.AddBinding("<Keyboard>/m");
+            reloadAction.AddBinding("<XRController>{RightHand}/primaryButton");
+            reloadAction.AddBinding("<XRController>{LeftHand}/primaryButton");
+            reloadAction.performed += OnReloadPressed;
+        }
+
+        void OnDestroy()
+        {
+            reloadAction.performed -= OnReloadPressed;
+            reloadAction.Dispose();
         }
 
         void OnEnable()
@@ -39,6 +56,7 @@ namespace Medallas.Weapon
             grabInteractable.deactivated.AddListener(OnDeactivated);
             grabInteractable.selectEntered.AddListener(OnGrabbed);
             grabInteractable.selectExited.AddListener(OnReleased);
+            if (grabInteractable.isSelected) reloadAction.Enable();
         }
 
         void OnDisable()
@@ -47,16 +65,31 @@ namespace Medallas.Weapon
             grabInteractable.deactivated.RemoveListener(OnDeactivated);
             grabInteractable.selectEntered.RemoveListener(OnGrabbed);
             grabInteractable.selectExited.RemoveListener(OnReleased);
+            reloadAction.Disable();
         }
 
         void OnGrabbed(SelectEnterEventArgs args)
         {
-            WeaponEquipped?.Invoke(weaponData);
+            reloadAction.Enable();
+            WeaponEquipped?.Invoke(this);
         }
 
         void OnReleased(SelectExitEventArgs args)
         {
-            WeaponUnequipped?.Invoke(weaponData);
+            // Solo recarga el arma que esta en la mano, no las que estan en el suelo.
+            if (!grabInteractable.isSelected) reloadAction.Disable();
+            WeaponUnequipped?.Invoke(this);
+        }
+
+        void OnReloadPressed(InputAction.CallbackContext context)
+        {
+            TryReload();
+        }
+
+        public bool TryReload()
+        {
+            if (ammoSystem == null || weaponData == null) return false;
+            return ammoSystem.Reload(weaponData.reloadTime);
         }
 
         void Update()
@@ -79,11 +112,13 @@ namespace Medallas.Weapon
         public void TryFire()
         {
             if (weaponData == null || Time.time < nextFireTime) return;
+            if (ammoSystem != null && ammoSystem.IsReloading) return;
             nextFireTime = Time.time + weaponData.fireRate;
 
             if (ammoSystem == null || !ammoSystem.TryConsumeAmmo(1))
             {
-                PlaySound(weaponData != null ? weaponData.emptySound : null);
+                PlaySound(weaponData.emptySound);
+                DryFired?.Invoke(this);
                 return;
             }
 
