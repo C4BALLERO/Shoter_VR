@@ -25,6 +25,7 @@ namespace Medallas.UI
         public Health playerHealth;
         public Image healthBarFill;
         public Text healthText;
+        public Text powerUpsText;
         public float messageDuration = 3f;
 
         Coroutine messageRoutine;
@@ -57,6 +58,7 @@ namespace Medallas.UI
             if (playerHealth != null)
             {
                 playerHealth.OnDamaged.AddListener(HandleHealthChanged);
+                playerHealth.OnHealed.AddListener(HandleHealthChanged);
                 HandleHealthChanged(playerHealth.CurrentHealth);
             }
 
@@ -88,12 +90,47 @@ namespace Medallas.UI
             WeaponController.DryFired -= HandleDryFired;
 
             if (playerHealth != null)
+            {
                 playerHealth.OnDamaged.RemoveListener(HandleHealthChanged);
+                playerHealth.OnHealed.RemoveListener(HandleHealthChanged);
+            }
 
             if (rewardMachine != null)
             {
                 rewardMachine.onNotEnoughMedals.RemoveListener(HandleNotEnoughMedals);
                 rewardMachine.onRewardGranted.RemoveListener(HandleRewardGranted);
+            }
+        }
+
+        readonly System.Text.StringBuilder powerUpBuilder = new System.Text.StringBuilder();
+        float nextPowerUpRefresh;
+
+        void Update()
+        {
+            if (powerUpsText == null || Time.time < nextPowerUpRefresh) return;
+            nextPowerUpRefresh = Time.time + 0.2f;
+
+            var powerUps = PlayerPowerUps.Instance;
+            powerUpBuilder.Clear();
+            if (powerUps != null)
+            {
+                foreach (var type in powerUps.ActivePowerUps())
+                {
+                    if (powerUpBuilder.Length > 0) powerUpBuilder.Append('\n');
+                    powerUpBuilder.Append(PowerUpLabel(type)).Append(' ').Append(Mathf.CeilToInt(powerUps.Remaining(type))).Append('s');
+                }
+            }
+            powerUpsText.text = powerUpBuilder.ToString();
+        }
+
+        static string PowerUpLabel(PowerUpType type)
+        {
+            switch (type)
+            {
+                case PowerUpType.DoubleDamage: return "DAÑO x2";
+                case PowerUpType.Shield: return "ESCUDO";
+                case PowerUpType.RapidFire: return "DISPARO RAPIDO";
+                default: return type.ToString();
             }
         }
 

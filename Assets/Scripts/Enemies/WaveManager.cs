@@ -23,6 +23,8 @@ namespace Medallas.Enemies
         public float spawnInterval = 2f;
         public float delayBetweenWaves = 4f;
         public HUDController hud;
+        [Tooltip("La asigna StartMenuController segun el modo elegido.")]
+        public DifficultyData difficulty;
 
         readonly List<GameObject> aliveEnemies = new List<GameObject>();
         int medalIndex;
@@ -35,6 +37,7 @@ namespace Medallas.Enemies
         {
             if (started) return;
             started = true;
+            if (difficulty != null) enemiesPerWave = difficulty.enemiesPerWave;
             StartCoroutine(RunWaves());
         }
 
@@ -80,7 +83,11 @@ namespace Medallas.Enemies
             aliveEnemies.Add(enemy);
 
             var ai = enemy.GetComponent<EnemyAI>();
-            if (ai != null) ai.OnEnemyDefeated += HandleEnemyDefeated;
+            if (ai != null)
+            {
+                ai.ApplyDifficulty(difficulty);
+                ai.OnEnemyDefeated += HandleEnemyDefeated;
+            }
 
             if (medalIndex < medalsToDistribute.Length && Random.value < 0.6f)
             {

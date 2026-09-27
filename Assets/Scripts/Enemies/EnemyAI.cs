@@ -37,8 +37,17 @@ namespace Medallas.Enemies
         Health health;
         float nextAttackTime;
         float nextThrowTime;
+        DifficultyData difficulty;
 
         public System.Action<int> OnEnemyDefeated;
+
+        float DamageMultiplier => difficulty != null ? difficulty.enemyDamageMultiplier : 1f;
+
+        // Se llama justo despues de Instantiate (antes de Start) desde WaveManager.
+        public void ApplyDifficulty(DifficultyData settings)
+        {
+            difficulty = settings;
+        }
 
         void Awake()
         {
@@ -49,11 +58,19 @@ namespace Medallas.Enemies
 
         void Start()
         {
+            if (difficulty != null)
+            {
+                throwCooldown *= difficulty.throwCooldownMultiplier;
+                aimSpread *= difficulty.aimSpreadMultiplier;
+            }
+
             if (data != null)
             {
-                health.maxHealth = data.maxHealth;
+                float healthMult = difficulty != null ? difficulty.enemyHealthMultiplier : 1f;
+                float speedMult = difficulty != null ? difficulty.enemySpeedMultiplier : 1f;
+                health.maxHealth = Mathf.Max(1, Mathf.RoundToInt(data.maxHealth * healthMult));
                 health.ResetHealth();
-                agent.speed = data.moveSpeed;
+                agent.speed = data.moveSpeed * speedMult;
             }
 
             health.OnDeath.AddListener(HandleDeath);
@@ -127,7 +144,7 @@ namespace Medallas.Enemies
             animator?.SetTrigger(AttackParam);
 
             var playerHealth = target.GetComponentInParent<IDamageable>();
-            playerHealth?.TakeDamage(data.attackDamage);
+            playerHealth?.TakeDamage(Mathf.Max(1, Mathf.RoundToInt(data.attackDamage * DamageMultiplier)));
         }
 
         void TryThrow()
@@ -148,7 +165,7 @@ namespace Medallas.Enemies
 
             var thrown = projectile.GetComponent<ThrownProjectile>();
             if (thrown != null)
-                thrown.Launch(gameObject, velocity);
+                thrown.Launch(gameObject, velocity, DamageMultiplier);
             else if (projectile.TryGetComponent(out Rigidbody rb))
                 rb.linearVelocity = velocity;
         }

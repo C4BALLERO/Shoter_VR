@@ -23,6 +23,8 @@ EXPLORAR → LOCALIZAR OBJETIVO → DISPARAR / INTERACTUAR → OBTENER MEDALLA
 - **Medallas**: 8 coleccionables físicos repartidos por el escenario, se recogen con agarre VR (XR Grab Interactable).
 - **Armas**: Pistola (semiautomática), Escopeta (6 perdigones con dispersión, corto alcance) y Subfusil (automático, cadencia alta). Todas disparan por raycast y consumen munición del cargador; se recargan desde la reserva (la pistola tiene reserva infinita para que el jugador nunca quede indefenso).
 - **Máquina expendedora ("tiro de suerte")**: cada tirada gasta 1 medalla disponible y suelta un arma al azar en su bandeja (Pistola 45%, Subfusil 35%, Escopeta 20%). Gastar medallas no resta de las recogidas: la máquina de recompensa final sigue contando todas las que encontraste.
+- **Tienda de medallas**: panel en la pared sur con 4 compras: Curar +50 vida (1 medalla), Daño x2 por 20 s (2), Escudo -50% de daño por 20 s (2) y Disparo rápido por 20 s (1). Si la compra no se puede aplicar (vida llena o jugador caído) no se cobra; comprar un power-up activo suma tiempo.
+- **Dificultad**: Fácil, Medio o Difícil, elegida con los botones de la barrera antes de iniciar. Cambia la vida del jugador (150/100/80), la vida, daño y velocidad de los enemigos, su frecuencia y puntería al lanzar hachas, y cuántos aparecen por oleada (4/5/7).
 - **Galería de tiro**: 3 objetivos reutilizables que suman puntos y reaparecen tras un tiempo.
 - **Enemigos**: 2 tipos simples (Rondador, Corredor) que persiguen y atacan al jugador usando NavMesh.
 - **Máquina de recompensa**: al reunir la cantidad configurada de medallas, entrega una recompensa (llave de salida).
@@ -34,14 +36,14 @@ EXPLORAR → LOCALIZAR OBJETIVO → DISPARAR / INTERACTUAR → OBTENER MEDALLA
 ```
 Assets/
   Scripts/
-    Core/            Health, IDamageable, ScoreManager, ShootingTarget
+    Core/            Health, IDamageable, ScoreManager, ShootingTarget, PlayerHurtbox, PlayerPowerUps
     Weapon/           WeaponController, AmmoSystem, DamageSystem
     Medals/           Medal, MedalManager
-    Enemies/          EnemyAI
-    RewardMachine/     RewardMachineController, VendingMachineController
+    Enemies/          EnemyAI, WaveManager, ThrownProjectile
+    RewardMachine/     RewardMachineController, VendingMachineController, MedalShopController
     SaveSystem/       SaveData, SaveSystem, SaveLoadTrigger
-    UI/               HUDController
-    ScriptableObjects/ GameConfig, MedalData, WeaponData, EnemyData, RewardData
+    UI/               HUDController, StartMenuController, DifficultyButton
+    ScriptableObjects/ GameConfig, MedalData, WeaponData, EnemyData, RewardData, DifficultyData
   Data/               Assets .asset reales (medallas, armas, enemigos, recompensa, config)
   Samples/            XR Interaction Toolkit Starter Assets + XR Device Simulator
   Scenes/SampleScene.unity   Escena única (gray box) con todo conectado
@@ -58,6 +60,7 @@ Cada uno resuelve un problema real de mantenimiento/balance, evitando hardcodear
 | `WeaponData` | daño, cargador, cargadores de repuesto, tiempo de recarga, cadencia, alcance, automático, perdigones/dispersión | Permite tener 3 armas distintas reusando el mismo `WeaponController` |
 | `EnemyData` | salud, velocidad, daño, rangos de detección/ataque, puntaje | Balance de IA separado del script de comportamiento |
 | `RewardData` | nombre, descripción, tipo, prefab de recompensa | La recompensa final se cambia sin tocar `RewardMachineController` |
+| `DifficultyData` | vida del jugador, multiplicadores de vida/daño/velocidad/lanzamiento/puntería de enemigos, enemigos por oleada | Un asset por modo (Fácil/Medio/Difícil): se balancea cada modo sin tocar `EnemyAI` ni `WaveManager` |
 
 ## Sistema de guardado
 
@@ -70,7 +73,7 @@ Cada uno resuelve un problema real de mantenimiento/balance, evitando hardcodear
 - **Agarrar objetos** (medallas, armas): botón de grip, acercando la mano al objeto.
 - **Disparar**: gatillo del controlador mientras se sostiene un arma.
 - **Recargar**: tecla **M** (simulador en PC) o botón **A/X** del control (Quest), con el arma en la mano.
-- **Interactuar** (máquina de recompensa, máquina expendedora, estaciones de guardado): botón de selección apuntando/tocando el objeto.
+- **Interactuar** (botones de dificultad e inicio, máquina de recompensa, máquina expendedora, tienda, estaciones de guardado): botón de selección apuntando/tocando el objeto.
 - En el editor, todo lo anterior se prueba con el **XR Device Simulator** (mouse + teclado) sin necesidad del headset.
 
 ## Requisitos y ejecución

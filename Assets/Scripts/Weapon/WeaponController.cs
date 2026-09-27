@@ -113,7 +113,9 @@ namespace Medallas.Weapon
         {
             if (weaponData == null || Time.time < nextFireTime) return;
             if (ammoSystem != null && ammoSystem.IsReloading) return;
-            nextFireTime = Time.time + weaponData.fireRate;
+            var powerUps = Medallas.Core.PlayerPowerUps.Instance;
+            float fireRateMult = powerUps != null ? powerUps.FireRateMultiplier : 1f;
+            nextFireTime = Time.time + weaponData.fireRate / fireRateMult;
 
             if (ammoSystem == null || !ammoSystem.TryConsumeAmmo(1))
             {
@@ -133,6 +135,9 @@ namespace Medallas.Weapon
             Vector3 origin = muzzlePoint != null ? muzzlePoint.position : transform.position;
             Vector3 baseDirection = muzzlePoint != null ? muzzlePoint.forward : transform.forward;
 
+            var powerUps = Medallas.Core.PlayerPowerUps.Instance;
+            int damage = Mathf.RoundToInt(weaponData.damage * (powerUps != null ? powerUps.DamageMultiplier : 1f));
+
             int pellets = Mathf.Max(1, weaponData.pelletCount);
             for (int i = 0; i < pellets; i++)
             {
@@ -141,7 +146,7 @@ namespace Medallas.Weapon
 
                 if (Physics.Raycast(origin, direction, out RaycastHit hit, weaponData.range, hittableLayers))
                 {
-                    DamageSystem.ApplyDamage(hit.collider.gameObject, weaponData.damage);
+                    DamageSystem.ApplyDamage(hit.collider.gameObject, damage);
                     tracerEnd = hit.point;
 
                     if (weaponData.impactEffectPrefab != null)
