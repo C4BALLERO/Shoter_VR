@@ -21,7 +21,8 @@ EXPLORAR → LOCALIZAR OBJETIVO → DISPARAR / INTERACTUAR → OBTENER MEDALLA
 ```
 
 - **Medallas**: 8 coleccionables físicos repartidos por el escenario, se recogen con agarre VR (XR Grab Interactable).
-- **Armas**: Pistola (semiautomática), Escopeta (6 perdigones con dispersión, corto alcance) y Subfusil (automático, cadencia alta). Todas disparan por raycast y consumen munición.
+- **Armas**: Pistola (semiautomática), Escopeta (6 perdigones con dispersión, corto alcance) y Subfusil (automático, cadencia alta). Todas disparan por raycast y consumen munición del cargador; se recargan desde la reserva (la pistola tiene reserva infinita para que el jugador nunca quede indefenso).
+- **Máquina expendedora ("tiro de suerte")**: cada tirada gasta 1 medalla disponible y suelta un arma al azar en su bandeja (Pistola 45%, Subfusil 35%, Escopeta 20%). Gastar medallas no resta de las recogidas: la máquina de recompensa final sigue contando todas las que encontraste.
 - **Galería de tiro**: 3 objetivos reutilizables que suman puntos y reaparecen tras un tiempo.
 - **Enemigos**: 2 tipos simples (Rondador, Corredor) que persiguen y atacan al jugador usando NavMesh.
 - **Máquina de recompensa**: al reunir la cantidad configurada de medallas, entrega una recompensa (llave de salida).
@@ -36,7 +37,7 @@ Assets/
     Weapon/           WeaponController, AmmoSystem, DamageSystem
     Medals/           Medal, MedalManager
     Enemies/          EnemyAI
-    RewardMachine/     RewardMachineController
+    RewardMachine/     RewardMachineController, VendingMachineController
     SaveSystem/       SaveData, SaveSystem, SaveLoadTrigger
     UI/               HUDController
     ScriptableObjects/ GameConfig, MedalData, WeaponData, EnemyData, RewardData
@@ -51,15 +52,15 @@ Cada uno resuelve un problema real de mantenimiento/balance, evitando hardcodear
 
 | Scriptable Object | Qué contiene | Por qué existe |
 |---|---|---|
-| `GameConfig` | Medallas requeridas, munición inicial, puntajes, comfort VR | Un solo lugar para ajustar el balance general sin tocar scripts |
+| `GameConfig` | Medallas requeridas, puntajes, comfort VR | Un solo lugar para ajustar el balance general sin tocar scripts |
 | `MedalData` | id, nombre, descripción, valor, tipo, recompensa asociada | Cada medalla es un asset independiente; agregar/quitar medallas no requiere código nuevo |
-| `WeaponData` | daño, munición, cadencia, alcance, automático, perdigones/dispersión | Permite tener 3 armas distintas reusando el mismo `WeaponController` |
+| `WeaponData` | daño, cargador, cargadores de repuesto, tiempo de recarga, cadencia, alcance, automático, perdigones/dispersión | Permite tener 3 armas distintas reusando el mismo `WeaponController` |
 | `EnemyData` | salud, velocidad, daño, rangos de detección/ataque, puntaje | Balance de IA separado del script de comportamiento |
 | `RewardData` | nombre, descripción, tipo, prefab de recompensa | La recompensa final se cambia sin tocar `RewardMachineController` |
 
 ## Sistema de guardado
 
-`SaveSystem` (estático) serializa un `SaveData` (medallas recogidas, puntaje, munición, si la recompensa ya fue entregada) a JSON en `Application.persistentDataPath/savegame.json` mediante `JsonUtility`. Se demuestra con las dos estaciones físicas "SaveStation" / "LoadStation" en la escena (interacción VR simple), o llamando a `SaveSystem.SaveGame()` / `SaveSystem.LoadGame()` desde código.
+`SaveSystem` (estático) serializa un `SaveData` (medallas recogidas y gastadas, puntaje, munición, si la recompensa ya fue entregada) a JSON en `Application.persistentDataPath/savegame.json` mediante `JsonUtility`. Se demuestra con las dos estaciones físicas "SaveStation" / "LoadStation" en la escena (interacción VR simple), o llamando a `SaveSystem.SaveGame()` / `SaveSystem.LoadGame()` desde código.
 
 ## Controles
 
@@ -67,7 +68,8 @@ Cada uno resuelve un problema real de mantenimiento/balance, evitando hardcodear
 - **Giro**: snap turn configurable.
 - **Agarrar objetos** (medallas, armas): botón de grip, acercando la mano al objeto.
 - **Disparar**: gatillo del controlador mientras se sostiene un arma.
-- **Interactuar** (máquina de recompensa, estaciones de guardado): botón de selección apuntando/tocando el objeto.
+- **Recargar**: tecla **M** (simulador en PC) o botón **A/X** del control (Quest), con el arma en la mano.
+- **Interactuar** (máquina de recompensa, máquina expendedora, estaciones de guardado): botón de selección apuntando/tocando el objeto.
 - En el editor, todo lo anterior se prueba con el **XR Device Simulator** (mouse + teclado) sin necesidad del headset.
 
 ## Requisitos y ejecución

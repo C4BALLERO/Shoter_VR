@@ -9,6 +9,7 @@ namespace Medallas.SaveSystem
     public class SaveData
     {
         public List<string> collectedMedalIds = new List<string>();
+        public int spentMedals;
         public int score;
         public int ammo;
         public bool rewardGranted;

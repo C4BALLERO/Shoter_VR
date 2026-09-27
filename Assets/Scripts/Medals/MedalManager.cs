@@ -15,11 +15,16 @@ namespace Medallas.Medals
         public GameConfig gameConfig;
 
         readonly HashSet<string> collectedMedalIds = new HashSet<string>();
+        int spentMedals;
 
         public event Action<MedalData> OnMedalCollected;
         public event Action<int, int> OnMedalCountChanged;
 
         public int CollectedCount => collectedMedalIds.Count;
+        // Gastar medallas (maquina expendedora) no borra las recogidas: la
+        // maquina de recompensa final cuenta las recogidas, no el saldo.
+        public int SpentCount => spentMedals;
+        public int AvailableCount => Mathf.Max(0, CollectedCount - spentMedals);
         public int TotalCount => gameConfig != null ? gameConfig.totalMedalCount : collectedMedalIds.Count;
 
         void Awake()
@@ -51,11 +56,22 @@ namespace Medallas.Medals
             return gameConfig != null && CollectedCount >= gameConfig.medalsRequiredForReward;
         }
 
+        public bool TrySpendMedals(int amount)
+        {
+            if (amount <= 0) return true;
+            if (AvailableCount < amount) return false;
+
+            spentMedals += amount;
+            OnMedalCountChanged?.Invoke(CollectedCount, TotalCount);
+            return true;
+        }
+
         // Usado por el SaveSystem para restaurar el progreso.
-        public void RestoreCollectedMedals(IEnumerable<string> medalIds)
+        public void RestoreCollectedMedals(IEnumerable<string> medalIds, int spent)
         {
             collectedMedalIds.Clear();
             foreach (var id in medalIds) collectedMedalIds.Add(id);
+            spentMedals = Mathf.Clamp(spent, 0, collectedMedalIds.Count);
             OnMedalCountChanged?.Invoke(CollectedCount, TotalCount);
         }
 

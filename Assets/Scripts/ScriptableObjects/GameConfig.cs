@@ -11,9 +11,6 @@ namespace Medallas.Data
         public int totalMedalCount = 8;
         public int medalsRequiredForReward = 5;
 
-        [Header("Arma")]
-        public int startingAmmo = 30;
-
         [Header("Puntuacion")]
         public int pointsPerTargetHit = 50;
         public int pointsPerEnemyDefeated = 100;

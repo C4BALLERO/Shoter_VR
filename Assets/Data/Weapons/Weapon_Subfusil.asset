@@ -15,6 +15,9 @@ MonoBehaviour:
   weaponName: Subfusil
   damage: 6
   magazineSize: 30
+  spareMagazines: 3
+  infiniteReserve: 0
+  reloadTime: 1.8
   fireRate: 0.1
   range: 35
   automatic: 1
