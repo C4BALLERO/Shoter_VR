@@ -10,7 +10,9 @@ namespace Medallas.Core
         public static ScoreManager Instance { get; private set; }
 
         public int CurrentScore { get; private set; }
+        public int Kills { get; private set; }
         public event Action<int> OnScoreChanged;
+        public event Action<int> OnKillsChanged;
 
         void Awake()
         {
@@ -32,6 +34,19 @@ namespace Medallas.Core
         {
             CurrentScore = amount;
             OnScoreChanged?.Invoke(CurrentScore);
+        }
+
+        public void RegisterKill(int points)
+        {
+            Kills++;
+            OnKillsChanged?.Invoke(Kills);
+            AddScore(points);
+        }
+
+        public void SetKills(int amount)
+        {
+            Kills = amount;
+            OnKillsChanged?.Invoke(Kills);
         }
     }
 }

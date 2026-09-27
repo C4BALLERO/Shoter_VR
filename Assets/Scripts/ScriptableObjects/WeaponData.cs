@@ -8,6 +8,7 @@ namespace Medallas.Data
     public class WeaponData : ScriptableObject
     {
         public string weaponName;
+        public Sprite icon;
         public int damage = 10;
         public int magazineSize = 10;
         public int spareMagazines = 4;

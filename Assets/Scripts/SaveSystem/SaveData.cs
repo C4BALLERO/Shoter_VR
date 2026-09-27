@@ -11,6 +11,7 @@ namespace Medallas.SaveSystem
         public List<string> collectedMedalIds = new List<string>();
         public int spentMedals;
         public int score;
+        public int kills;
         public int ammo;
         public bool rewardGranted;
     }

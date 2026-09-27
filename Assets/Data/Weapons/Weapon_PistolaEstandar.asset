@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Weapon_PistolaEstandar
   m_EditorClassIdentifier: Assembly-CSharp::Medallas.Data.WeaponData
   weaponName: Pistola Estandar
+  icon: {fileID: 21300000, guid: c4855bc8ef77dbe4cabcc17c7ebb0849, type: 3}
   damage: 15
   magazineSize: 12
   spareMagazines: 0
