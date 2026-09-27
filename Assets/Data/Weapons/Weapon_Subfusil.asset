@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Weapon_Subfusil
   m_EditorClassIdentifier: Assembly-CSharp::Medallas.Data.WeaponData
   weaponName: Subfusil
+  icon: {fileID: 21300000, guid: 615d54e7e6cb3414caf5e2beed7ad8f2, type: 3}
   damage: 6
   magazineSize: 30
   spareMagazines: 3

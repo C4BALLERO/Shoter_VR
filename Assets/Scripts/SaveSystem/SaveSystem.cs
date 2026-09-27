@@ -25,7 +25,10 @@ namespace Medallas.SaveSystem
             }
 
             if (ScoreManager.Instance != null)
+            {
                 data.score = ScoreManager.Instance.CurrentScore;
+                data.kills = ScoreManager.Instance.Kills;
+            }
 
             var ammoSystem = Object.FindFirstObjectByType<AmmoSystem>();
             if (ammoSystem != null)
@@ -60,7 +63,10 @@ namespace Medallas.SaveSystem
                 MedalManager.Instance.RestoreCollectedMedals(data.collectedMedalIds, data.spentMedals);
 
             if (ScoreManager.Instance != null)
+            {
                 ScoreManager.Instance.SetScore(data.score);
+                ScoreManager.Instance.SetKills(data.kills);
+            }
 
             var ammoSystem = Object.FindFirstObjectByType<AmmoSystem>();
             if (ammoSystem != null)

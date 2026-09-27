@@ -79,11 +79,19 @@ namespace Medallas.Enemies
             var enemy = Instantiate(prefab, spawnPoint.position, spawnPoint.rotation);
             aliveEnemies.Add(enemy);
 
+            var ai = enemy.GetComponent<EnemyAI>();
+            if (ai != null) ai.OnEnemyDefeated += HandleEnemyDefeated;
+
             if (medalIndex < medalsToDistribute.Length && Random.value < 0.6f)
             {
                 AttachMedal(enemy, medalsToDistribute[medalIndex]);
                 medalIndex++;
             }
+        }
+
+        void HandleEnemyDefeated(int score)
+        {
+            Medallas.Core.ScoreManager.Instance?.RegisterKill(score);
         }
 
         void AttachMedal(GameObject enemy, MedalData medal)

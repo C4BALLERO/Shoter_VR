@@ -27,6 +27,7 @@ EXPLORAR → LOCALIZAR OBJETIVO → DISPARAR / INTERACTUAR → OBTENER MEDALLA
 - **Enemigos**: 2 tipos simples (Rondador, Corredor) que persiguen y atacan al jugador usando NavMesh.
 - **Máquina de recompensa**: al reunir la cantidad configurada de medallas, entrega una recompensa (llave de salida).
 - **Guardado**: progreso persistente en JSON, con estaciones físicas de Guardar/Cargar en el escenario.
+- **HUD**: arriba a la izquierda medallas, puntos y bajas; abajo a la izquierda el icono del arma en uso con su munición; abajo al centro la barra de vida. Se dibuja siempre por encima de la escena (shader `Medallas/UI Overlay`).
 
 ## Arquitectura
 
@@ -60,7 +61,7 @@ Cada uno resuelve un problema real de mantenimiento/balance, evitando hardcodear
 
 ## Sistema de guardado
 
-`SaveSystem` (estático) serializa un `SaveData` (medallas recogidas y gastadas, puntaje, munición, si la recompensa ya fue entregada) a JSON en `Application.persistentDataPath/savegame.json` mediante `JsonUtility`. Se demuestra con las dos estaciones físicas "SaveStation" / "LoadStation" en la escena (interacción VR simple), o llamando a `SaveSystem.SaveGame()` / `SaveSystem.LoadGame()` desde código.
+`SaveSystem` (estático) serializa un `SaveData` (medallas recogidas y gastadas, puntaje, bajas, munición, si la recompensa ya fue entregada) a JSON en `Application.persistentDataPath/savegame.json` mediante `JsonUtility`. Se demuestra con las dos estaciones físicas "SaveStation" / "LoadStation" en la escena (interacción VR simple), o llamando a `SaveSystem.SaveGame()` / `SaveSystem.LoadGame()` desde código.
 
 ## Controles
 

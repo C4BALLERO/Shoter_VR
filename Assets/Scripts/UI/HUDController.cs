@@ -15,6 +15,8 @@ namespace Medallas.UI
     {
         public Text medalsText;
         public Text pointsText;
+        public Text killsText;
+        public Image weaponIcon;
         public Text ammoText;
         public Text weaponText;
         public Text messageText;
@@ -40,7 +42,9 @@ namespace Medallas.UI
             if (ScoreManager.Instance != null)
             {
                 ScoreManager.Instance.OnScoreChanged += HandleScoreChanged;
+                ScoreManager.Instance.OnKillsChanged += HandleKillsChanged;
                 HandleScoreChanged(ScoreManager.Instance.CurrentScore);
+                HandleKillsChanged(ScoreManager.Instance.Kills);
             }
 
             BindAmmo(ammoSystem);
@@ -48,7 +52,7 @@ namespace Medallas.UI
             WeaponController.WeaponEquipped += HandleWeaponEquipped;
             WeaponController.WeaponUnequipped += HandleWeaponUnequipped;
             WeaponController.DryFired += HandleDryFired;
-            if (weaponText != null) weaponText.text = "ARMA: NINGUNA";
+            ShowWeapon(null);
 
             if (playerHealth != null)
             {
@@ -72,7 +76,10 @@ namespace Medallas.UI
             }
 
             if (ScoreManager.Instance != null)
+            {
                 ScoreManager.Instance.OnScoreChanged -= HandleScoreChanged;
+                ScoreManager.Instance.OnKillsChanged -= HandleKillsChanged;
+            }
 
             BindAmmo(null);
 
@@ -107,6 +114,11 @@ namespace Medallas.UI
             if (pointsText != null) pointsText.text = $"PUNTOS: {score}";
         }
 
+        void HandleKillsChanged(int kills)
+        {
+            if (killsText != null) killsText.text = $"BAJAS: {kills}";
+        }
+
         void BindAmmo(AmmoSystem ammo)
         {
             if (boundAmmo != null)
@@ -129,7 +141,7 @@ namespace Medallas.UI
         {
             if (ammoText == null || boundAmmo == null) return;
             string reserve = boundAmmo.InfiniteReserve ? "∞" : boundAmmo.ReserveAmmo.ToString();
-            ammoText.text = $"MUNICION: {magazine} / {reserve}";
+            ammoText.text = $"{magazine} / {reserve}";
         }
 
         void HandleReloadStateChanged(bool reloading)
@@ -148,14 +160,23 @@ namespace Medallas.UI
 
         void HandleWeaponEquipped(WeaponController weapon)
         {
-            var data = weapon.weaponData;
-            if (weaponText != null) weaponText.text = "ARMA: " + (data != null ? data.weaponName.ToUpper() : "?");
+            ShowWeapon(weapon.weaponData);
             BindAmmo(weapon.ammoSystem);
         }
 
         void HandleWeaponUnequipped(WeaponController weapon)
         {
-            if (weaponText != null) weaponText.text = "ARMA: NINGUNA";
+            ShowWeapon(null);
+        }
+
+        void ShowWeapon(WeaponData data)
+        {
+            if (weaponText != null) weaponText.text = data != null ? data.weaponName.ToUpper() : "SIN ARMA";
+            if (weaponIcon != null)
+            {
+                weaponIcon.sprite = data != null ? data.icon : null;
+                weaponIcon.enabled = weaponIcon.sprite != null;
+            }
         }
 
         void HandleHealthChanged(int current)
