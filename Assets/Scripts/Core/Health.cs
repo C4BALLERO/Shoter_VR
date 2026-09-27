@@ -8,7 +8,10 @@ namespace Medallas.Core
     public class Health : MonoBehaviour, IDamageable
     {
         public int maxHealth = 30;
+        [Tooltip("1 = dano normal; el power-up de escudo lo baja a 0.5.")]
+        public float incomingDamageMultiplier = 1f;
         public UnityEvent<int> OnDamaged;
+        public UnityEvent<int> OnHealed;
         public UnityEvent OnDeath;
 
         int currentHealth;
@@ -25,6 +28,9 @@ namespace Medallas.Core
         {
             if (IsDead) return;
 
+            if (incomingDamageMultiplier != 1f)
+                amount = Mathf.Max(1, Mathf.RoundToInt(amount * incomingDamageMultiplier));
+
             currentHealth = Mathf.Max(0, currentHealth - amount);
             OnDamaged?.Invoke(currentHealth);
 
@@ -35,10 +41,20 @@ namespace Medallas.Core
             }
         }
 
+        public bool IsFull => currentHealth >= maxHealth;
+
+        public void Heal(int amount)
+        {
+            if (IsDead || amount <= 0) return;
+            currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
+            OnHealed?.Invoke(currentHealth);
+        }
+
         public void ResetHealth()
         {
             currentHealth = maxHealth;
             IsDead = false;
+            OnHealed?.Invoke(currentHealth);
         }
     }
 }

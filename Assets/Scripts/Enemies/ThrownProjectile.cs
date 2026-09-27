@@ -19,9 +19,10 @@ namespace Medallas.Enemies
 
         // Sin esto el proyectil nace dentro del collider del enemigo que lo
         // lanza y se destruye al instante contra su propio cuerpo.
-        public void Launch(GameObject thrower, Vector3 velocity)
+        public void Launch(GameObject thrower, Vector3 velocity, float damageMultiplier = 1f)
         {
             owner = thrower;
+            damage = Mathf.Max(1, Mathf.RoundToInt(damage * damageMultiplier));
             if (owner != null)
             {
                 var myColliders = GetComponentsInChildren<Collider>();
