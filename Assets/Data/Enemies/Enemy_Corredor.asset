@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Enemy_Corredor
   m_EditorClassIdentifier: Assembly-CSharp::Medallas.Data.EnemyData
   enemyName: Corredor
-  maxHealth: 20
+  maxHealth: 60
   moveSpeed: 3.2
   attackDamage: 6
   attackRange: 1.2

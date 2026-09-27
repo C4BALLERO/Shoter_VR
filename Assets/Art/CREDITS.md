@@ -38,5 +38,10 @@ Fuente: https://opengameart.org/content/simple-seamless-hand-painted-wooden-plan
 Licencia: CC-BY 3.0 (requiere atribucion). Autor: kinnybean.
 Usado para: textura de madera del piso y las paredes (difuso, normal, specular, oclusion).
 
+## Survival Kit (Kenney) — CC0
+Fuente: https://kenney.nl/assets/survival-kit
+Licencia: CC0 (dominio publico).
+Usado: solo `tool-axe` y `tool-axe-upgraded` (+ su `colormap.png`) como hachas que lanzan los enemigos.
+
 ## Antorchas
 Antorchas y su parpadeo (TorchFlicker.cs) son geometria simple + luz generadas por codigo, no assets descargados.

@@ -20,8 +20,12 @@ namespace Medallas.Enemies
         public GameObject projectilePrefab;
         public Transform throwPoint;
         public float throwCooldown = 2.5f;
-        public float throwSpeed = 6f;
-        public float throwArcBoost = 3f;
+        public float maxThrowRange = 14f;
+        public float throwSpeed = 7f;
+        public float minFlightTime = 0.9f;
+        public float maxFlightTime = 2f;
+        public float aimBelowHead = 0.4f;
+        public float aimSpread = 0.35f;
 
         [Header("Animacion")]
         public Animator animator;
@@ -54,6 +58,9 @@ namespace Medallas.Enemies
 
             health.OnDeath.AddListener(HandleDeath);
 
+            // Desfase inicial para que una oleada no lance todas las hachas a la vez.
+            nextThrowTime = Time.time + Random.Range(0.5f, throwCooldown);
+
             if (target == null && Camera.main != null)
                 target = Camera.main.transform;
         }
@@ -78,9 +85,10 @@ namespace Medallas.Enemies
                     TryAttack();
                 }
 
-                // Si no logra acercarse lo suficiente (ej. bloqueado por una
-                // barrera que el NavMesh no puede cruzar), ataca a distancia.
-                if (distance > data.attackRange && AgentIsBlocked())
+                // Fuera del alcance cuerpo a cuerpo lanza hachas; no se exige
+                // estar "bloqueado" porque al amontonarse contra la barrera los
+                // agentes nunca llegan al final del camino y no lanzaban nunca.
+                if (distance > data.attackRange + 0.5f && distance <= maxThrowRange)
                 {
                     FaceTarget();
                     TryThrow();
@@ -111,11 +119,6 @@ namespace Medallas.Enemies
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * turnSpeed);
         }
 
-        bool AgentIsBlocked()
-        {
-            return !agent.pathPending && agent.remainingDistance <= agent.stoppingDistance + 0.1f;
-        }
-
         void TryAttack()
         {
             if (Time.time < nextAttackTime) return;
@@ -135,13 +138,30 @@ namespace Medallas.Enemies
             animator?.SetTrigger(AttackParam);
 
             Vector3 origin = throwPoint != null ? throwPoint.position : transform.position + Vector3.up;
-            var projectile = Instantiate(projectilePrefab, origin, Quaternion.identity);
+            Vector2 spread = Random.insideUnitCircle * aimSpread;
+            Vector3 aimPoint = target.position + Vector3.down * aimBelowHead + new Vector3(spread.x, 0f, spread.y);
+            Vector3 velocity = BallisticVelocity(origin, aimPoint);
 
-            var rb = projectile.GetComponent<Rigidbody>();
-            if (rb == null) return;
+            Vector3 flatDir = new Vector3(velocity.x, 0f, velocity.z);
+            Quaternion rotation = flatDir.sqrMagnitude > 0.001f ? Quaternion.LookRotation(flatDir) : Quaternion.identity;
+            var projectile = Instantiate(projectilePrefab, origin, rotation);
 
-            Vector3 toTarget = target.position - origin;
-            rb.linearVelocity = toTarget.normalized * throwSpeed + Vector3.up * throwArcBoost;
+            var thrown = projectile.GetComponent<ThrownProjectile>();
+            if (thrown != null)
+                thrown.Launch(gameObject, velocity);
+            else if (projectile.TryGetComponent(out Rigidbody rb))
+                rb.linearVelocity = velocity;
+        }
+
+        // Velocidad inicial que hace caer el proyectil justo en aimPoint: el
+        // tiempo de vuelo crece con la distancia, asi el arco siempre supera
+        // la barrera y el jugador tiene margen para esquivar.
+        Vector3 BallisticVelocity(Vector3 origin, Vector3 aimPoint)
+        {
+            Vector3 delta = aimPoint - origin;
+            float horizontal = new Vector2(delta.x, delta.z).magnitude;
+            float flightTime = Mathf.Clamp(horizontal / Mathf.Max(0.1f, throwSpeed), minFlightTime, maxFlightTime);
+            return delta / flightTime - 0.5f * Physics.gravity * flightTime;
         }
 
         void HandleDeath()
