@@ -121,6 +121,25 @@ namespace Medallas.Enemies
             UpdateAnimator();
         }
 
+        // Congela al enemigo mientras el menu de "has caido" esta abierto.
+        public void SetFrozen(bool frozen)
+        {
+            enabled = !frozen;
+            if (agent != null && agent.isOnNavMesh)
+            {
+                agent.isStopped = frozen || agent.isStopped;
+                if (frozen) agent.velocity = Vector3.zero;
+            }
+            if (animator != null) animator.speed = frozen ? 0f : 1f;
+
+            // Al reanudar, que no lancen todos a la vez por el tiempo que estuvieron congelados.
+            if (!frozen)
+            {
+                nextThrowTime = Time.time + Random.Range(1f, throwCooldown);
+                nextAttackTime = Time.time + 1f;
+            }
+        }
+
         void UpdateAnimator()
         {
             if (animator == null) return;

@@ -132,6 +132,7 @@ namespace Medallas.UI
                 case PowerUpType.DoubleDamage: return "DAÑO x2";
                 case PowerUpType.Shield: return "ESCUDO";
                 case PowerUpType.RapidFire: return "DISPARO RAPIDO";
+                case PowerUpType.Invulnerable: return "INVULNERABLE";
                 default: return type.ToString();
             }
         }
@@ -242,6 +243,14 @@ namespace Medallas.UI
         void HandleRewardGranted()
         {
             ShowMessage("MAQUINA ACTIVADA - RECOMPENSA OBTENIDA");
+        }
+
+        // El HUD se dibuja encima de todo; se oculta cuando un menu frente al
+        // jugador (ej. "has caido") necesita la vista despejada.
+        public void SetVisible(bool visible)
+        {
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas != null) canvas.enabled = visible;
         }
 
         public void ShowMessage(string text)
