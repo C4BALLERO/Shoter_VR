@@ -8,7 +8,8 @@ namespace Medallas.Core
     {
         DoubleDamage,
         Shield,
-        RapidFire
+        RapidFire,
+        Invulnerable
     }
 
     // Power-ups temporales del jugador. Las armas consultan DamageMultiplier /
@@ -63,10 +64,7 @@ namespace Medallas.Core
         {
             float start = IsActive(type) ? endTimes[type] : Time.time;
             endTimes[type] = start + duration;
-
-            if (type == PowerUpType.Shield && health != null)
-                health.incomingDamageMultiplier = shieldDamageTakenMultiplier;
-
+            RecomputeDamageTaken();
             Activated?.Invoke(type, Remaining(type));
         }
 
@@ -81,10 +79,18 @@ namespace Medallas.Core
             foreach (var type in expired)
             {
                 endTimes.Remove(type);
-                if (type == PowerUpType.Shield && health != null)
-                    health.incomingDamageMultiplier = 1f;
                 Expired?.Invoke(type);
             }
+            if (expired.Count > 0) RecomputeDamageTaken();
+        }
+
+        // Invulnerable (al revivir) manda sobre el escudo; sin ninguno, dano normal.
+        void RecomputeDamageTaken()
+        {
+            if (health == null) return;
+            if (IsActive(PowerUpType.Invulnerable)) health.incomingDamageMultiplier = 0f;
+            else if (IsActive(PowerUpType.Shield)) health.incomingDamageMultiplier = shieldDamageTakenMultiplier;
+            else health.incomingDamageMultiplier = 1f;
         }
     }
 }

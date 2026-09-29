@@ -26,7 +26,7 @@ namespace Medallas.Core
 
         public void TakeDamage(int amount)
         {
-            if (IsDead) return;
+            if (IsDead || incomingDamageMultiplier <= 0f) return;
 
             if (incomingDamageMultiplier != 1f)
                 amount = Mathf.Max(1, Mathf.RoundToInt(amount * incomingDamageMultiplier));

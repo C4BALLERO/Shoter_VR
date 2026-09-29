@@ -188,7 +188,7 @@ namespace Medallas.UI
         }
 
         // Cada nivel empieza con la vida completa (la del modo elegido).
-        void RestorePlayerHealth()
+        public void RestorePlayerHealth()
         {
             if (playerHealth == null) return;
             var d = SelectedDifficulty;

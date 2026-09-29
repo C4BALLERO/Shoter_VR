@@ -39,8 +39,45 @@ namespace Medallas.Enemies
         int medalIndex;
         int bonusMedalsThisLevel;
         bool running;
+        bool paused;
 
         public bool IsRunning => running;
+        public bool IsPaused => paused;
+
+        // Pausa el combate sin tocar Time.timeScale (congelar el tiempo tambien
+        // congelaria el simulador XR y el jugador no podria apuntar al menu).
+        public void SetPaused(bool value)
+        {
+            paused = value;
+            aliveEnemies.RemoveAll(e => e == null);
+            foreach (var enemy in aliveEnemies)
+            {
+                var ai = enemy.GetComponent<EnemyAI>();
+                if (ai != null) ai.SetFrozen(value);
+            }
+            ClearProjectiles();
+        }
+
+        // Vuelve a empezar el nivel actual desde la primera oleada.
+        public void RestartLevel()
+        {
+            StopAllCoroutines();
+            aliveEnemies.RemoveAll(e => e == null);
+            foreach (var enemy in aliveEnemies) Destroy(enemy);
+            aliveEnemies.Clear();
+            ClearProjectiles();
+            running = false;
+            paused = false;
+            // Las medallas unicas ya recogidas se saltan al repartir (ver SpawnOne).
+            medalIndex = 0;
+            BeginGame();
+        }
+
+        static void ClearProjectiles()
+        {
+            foreach (var p in FindObjectsByType<ThrownProjectile>(FindObjectsSortMode.None))
+                Destroy(p.gameObject);
+        }
 
         // Las oleadas no arrancan solas: las dispara el menu de inicio
         // (ver StartMenuController) para que el jugador tenga tiempo de
@@ -71,6 +108,7 @@ namespace Medallas.Enemies
                 yield return StartCoroutine(SpawnWave());
                 yield return new WaitUntil(AllEnemiesGone);
                 if (wave < totalWaves) yield return new WaitForSeconds(delayBetweenWaves);
+                yield return new WaitWhile(() => paused);
             }
 
             Debug.Log($"[WaveManager] Nivel {level} completado.");
@@ -88,6 +126,7 @@ namespace Medallas.Enemies
         {
             for (int i = 0; i < enemiesPerWave; i++)
             {
+                yield return new WaitWhile(() => paused);
                 SpawnOne();
                 yield return new WaitForSeconds(spawnInterval);
             }

@@ -27,6 +27,7 @@ EXPLORAR → LOCALIZAR OBJETIVO → DISPARAR / INTERACTUAR → OBTENER MEDALLA
 - **Dificultad**: Fácil, Medio o Difícil, elegida con los botones de la barrera antes de iniciar. Cambia la vida del jugador (150/100/80), la vida, daño y velocidad de los enemigos, su frecuencia y puntería al lanzar hachas, y cuántos aparecen por oleada (4/5/7).
 - **Niveles**: un nivel son 5 oleadas. Al terminarlo se autoguarda y el botón verde pasa a "Siguiente nivel", más difícil que el anterior (+25% vida y +15% daño enemigo, +5% velocidad, hachas un 10% más seguido y +1 enemigo por oleada por nivel, sobre el modo elegido). Desde el nivel 2 algunos enemigos cargan medallas extra (hasta 4 por nivel) que solo suman saldo para la tienda y la expendedora.
 - **Continuar otro día**: el menú muestra "Nueva partida" (verde) y, si hay partida guardada, "Continuar" (azul) con el nivel y modo guardados. Continuar restaura medallas, puntos y bajas y retoma desde el inicio del nivel guardado; Nueva partida reemplaza la partida guardada.
+- **Al quedarse sin vida**: el combate se congela y aparece frente al jugador el menú "HAS CAÍDO" con dos opciones: **Reiniciar nivel** (vuelve al inicio del nivel con las medallas, puntos y bajas que tenía al empezarlo) o **Continuar por 2 medallas** (revive en el mismo punto con la vida llena y 3 s de invulnerabilidad).
 - **Galería de tiro**: 3 objetivos reutilizables que suman puntos y reaparecen tras un tiempo.
 - **Enemigos**: 2 tipos simples (Rondador, Corredor) que persiguen y atacan al jugador usando NavMesh.
 - **Máquina de recompensa**: al reunir la cantidad configurada de medallas, entrega una recompensa (llave de salida).
@@ -44,7 +45,7 @@ Assets/
     Enemies/          EnemyAI, WaveManager, ThrownProjectile
     RewardMachine/     RewardMachineController, VendingMachineController, MedalShopController
     SaveSystem/       SaveData, SaveSystem, SaveLoadTrigger
-    UI/               HUDController, StartMenuController, DifficultyButton
+    UI/               HUDController, StartMenuController, DifficultyButton, GameOverController
     ScriptableObjects/ GameConfig, MedalData, WeaponData, EnemyData, RewardData, DifficultyData
   Data/               Assets .asset reales (medallas, armas, enemigos, recompensa, config)
   Samples/            XR Interaction Toolkit Starter Assets + XR Device Simulator
